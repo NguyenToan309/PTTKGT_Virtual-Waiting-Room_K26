@@ -154,11 +154,11 @@ stateDiagram-v2
 | STT | Thành viên phụ trách | Module đảm nhiệm | Thuật toán / Kỹ thuật chính | Sản phẩm bàn giao | Trạng thái |
 | :---: | :--- | :--- | :--- | :--- | :---: |
 | **1** | **Trần Thị Thanh Phương** | **M1: FIFO queue** | `Queue`, `FIFO`, mô hình `M/M/c` | Code `FIFO-queue.py`, bộ test case, báo cáo độ phức tạp $\mathcal{O}(1)$ | <kbd>100%</kbd> |
-| **2** | **Trần Thị Yến Vy ** | **M2: Priority queue** | `Max-Heap`, `Priority Queue`, `Aging` | Code `hàng đợi ưu tiên-1.py`, so sánh thứ tự phục vụ vs FIFO | <kbd>Đã hoàn thành</kbd> |
-| **3** | **Lê Quang Thịnh ** | **M3:ate limiter** | `Leaky Bucket`, `Token Bucket` | Module Traffic Control, bảng so sánh định lượng 2 thuật toán | <kbd>Đang tiến hành</kbd> |
+| **2** | **Trần Thị Yến Vy** | **M2: Priority queue** | `Max-Heap`, `Priority Queue`, `Aging` | Code `hàng đợi ưu tiên-1.py`, so sánh thứ tự phục vụ vs FIFO | <kbd>Đã hoàn thành</kbd> |
+| **3** | **Lê Quang Thịnh** | **M3:ate limiter** | `Leaky Bucket`, `Token Bucket` | Module Traffic Control, bảng so sánh định lượng 2 thuật toán | <kbd>Đang tiến hành</kbd> |
 | **4** | **Nguyễn Hoàng Tuyết Phương** | **M4: Ticket time to ** | `Min-Heap`, `TTL (Time-To-Live)` | Code `quản lý thời hạn giữ vé.py`, demo tự nhả ghế hết hạn | <kbd>Đã hoàn thành</kbd> |
-| **5** | **Nguyễn Khánh Toàn ** | **M5: Concurrency** | `Mutex Lock`, `Greedy`, `Sliding Window`, `Anti-Deadlock` | Code `xử lý tranh chấp mua ghế.py`, test đa luồng Concurrency | <kbd>Đã hoàn thành</kbd> |
-| **6** | **Kiều Minh Tiến ** | **M6: Seat fsm** | `Finite State Machine (FSM)`, `State Transition` | Module Seat FSM, sơ đồ trạng thái, kiểm tra chuyển trạng thái hợp lệ | <kbd>Đang tiến hành</kbd> |
+| **5** | **Nguyễn Khánh Toàn** | **M5: Concurrency** | `Mutex Lock`, `Greedy`, `Sliding Window`, `Anti-Deadlock` | Code `xử lý tranh chấp mua ghế.py`, test đa luồng Concurrency | <kbd>Đã hoàn thành</kbd> |
+| **6** | **Kiều Minh Tiến** | **M6: Seat fsm** | `Finite State Machine (FSM)`, `State Transition` | Module Seat FSM, sơ đồ trạng thái, kiểm tra chuyển trạng thái hợp lệ | <kbd>Đang tiến hành</kbd> |
 | **7** | **Lê Tiến Đạt** | **M7: Benchmark & Đo lường** | `Benchmarking Framework`, `Matplotlib`, `CSV Export` | Script sinh dữ liệu tải cao, biểu đồ Throughput, Latency, Memory | <kbd>Đang tiến hành</kbd> |
 | **8** | **Trần Thị Thanh Phương** | **M8: Mô phỏng DES & UI** | `Discrete-Event Simulation`, `Event Queue`, `Streamlit` | Web App Dashboard tương tác, điều khiển kịch bản mô phỏng | <kbd>Đang tiến hành</kbd> |
 
