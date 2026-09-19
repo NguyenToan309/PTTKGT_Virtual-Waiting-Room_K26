@@ -215,12 +215,16 @@
 
             <div class="hold-action-bar">
               <div class="seat-qty-picker">
-                <label for="selectSeatCount">Số lượng vé:</label>
-                <select id="selectSeatCount" class="custom-select">
-                  <option value="1">01 Vé</option>
-                  <option value="2" selected>02 Vé</option>
-                  <option value="4">04 Vé</option>
-                </select>
+                <label for="inputCitizenQty">Số lượng vé muốn mua:</label>
+                <div class="qty-input-group">
+                  <input type="number" id="inputCitizenQty" min="1" max="10" value="2" class="custom-input-number sm">
+                  <div class="qty-chips">
+                    <button type="button" class="btn-qty-chip" data-qty="1">1</button>
+                    <button type="button" class="btn-qty-chip active" data-qty="2">2</button>
+                    <button type="button" class="btn-qty-chip" data-qty="4">4</button>
+                    <button type="button" class="btn-qty-chip" data-qty="6">6</button>
+                  </div>
+                </div>
               </div>
               <button id="btnHoldTicket" class="btn btn-primary-cyan" type="button">
                 🛒 Xác Nhận Giữ Vé & Lấy Ghế Ngay
@@ -301,74 +305,112 @@
     <!-- =================================================================== -->
     <section id="viewAdmin" class="view-panel">
       
-      <!-- Thanh điều khiển mô phỏng & Presets -->
+      <!-- ================================================================= -->
+      <!-- KHU VỰC 1: BỘ ĐIỀU KHIỂN & NHẬP THÔNG SỐ ĐẦU VÀO ĐỘNG              -->
+      <!-- ================================================================= -->
       <div class="glass-card control-panel-strip">
-        <div class="control-row-main">
-          <div class="ctrl-group">
-            <label for="selVenuePreset" class="ctrl-label">🏛️ ĐỊA ĐIỂM TỔ CHỨC:</label>
-            <select id="selVenuePreset" class="custom-select preset-select">
-              <option value="my_dinh" selected>Sân Vận Động Mỹ Đình (40,000 Ghế - Mega Concert)</option>
-              <option value="arena">Nhà Thi Đấu Quốc Tế (10,000 Ghế - Arena)</option>
-              <option value="ncc">Trung Tâm Hội Nghị QG (3,800 Ghế - Auditorium)</option>
-            </select>
+        <div class="config-header-row">
+          <div class="cfg-badge">⚙️ BẢNG ĐIỀU KHIỂN THÔNG SỐ & MÔ PHỎNG ĐẠI NHẠC HỘI</div>
+          <div class="cfg-hint">Thay đổi sức chứa, số người mua và nhu cầu để thuật toán tự động tái tính toán</div>
+        </div>
+
+        <div class="control-row-main inputs-grid">
+          <!-- 1. Sức chứa thực tế C -->
+          <div class="ctrl-group highlight-box">
+            <label for="inputCapacityC" class="ctrl-label">
+              🏟️ SỨC CHỨA SÂN THỰC TẾ (C):
+            </label>
+            <div class="input-with-presets">
+              <input type="number" id="inputCapacityC" min="500" max="100000" step="500" value="40000" class="custom-input-number lg">
+              <div class="preset-chips">
+                <button type="button" class="btn-chip active" data-cap="40000" data-preset="my_dinh">Mỹ Đình (40K)</button>
+                <button type="button" class="btn-chip" data-cap="10000" data-preset="arena">Arena (10K)</button>
+                <button type="button" class="btn-chip" data-cap="3800" data-preset="ncc">NCC (3.8K)</button>
+              </div>
+            </div>
           </div>
 
+          <!-- 2. Số lượng người đang mua / xếp hàng N -->
+          <div class="ctrl-group highlight-box">
+            <label for="inputNumUsers" class="ctrl-label">
+              👥 SỐ NGƯỜI ĐANG MUA / XẾP HÀNG (N):
+            </label>
+            <div class="input-with-presets">
+              <input type="number" id="inputNumUsers" min="100" max="1000000" step="1000" value="185420" class="custom-input-number lg">
+              <div class="preset-chips">
+                <button type="button" class="btn-chip active" data-users="185420">185,420</button>
+                <button type="button" class="btn-chip" data-users="250000">250,000</button>
+                <button type="button" class="btn-chip" data-users="100000">100,000</button>
+                <button type="button" class="btn-chip" data-users="50000">50,000</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Ngưỡng rủi ro tau_0 -->
           <div class="ctrl-group">
             <label for="rangeRiskTau" class="ctrl-label">NGƯỠNG RỦI RO (τ₀): <span id="lblRiskTau" class="gold">5.0%</span></label>
             <input type="range" id="rangeRiskTau" min="1" max="10" step="0.5" value="5.0" class="custom-slider">
+            <div class="slider-subtext">Ràng buộc an toàn bài báo PLOS ONE</div>
           </div>
 
+          <!-- 4. Tỷ lệ bỏ vé p -->
           <div class="ctrl-group">
-            <label for="rangeDropRate" class="ctrl-label">TỶ LỆ BỎ VÉ (p): <span id="lblDropRate" class="cyan">18.0%</span></label>
+            <label for="rangeDropRate" class="ctrl-label">TỶ LỆ BỎ VÉ p(t): <span id="lblDropRate" class="cyan">18.0%</span></label>
             <input type="range" id="rangeDropRate" min="5" max="35" step="1" value="18" class="custom-slider">
+            <div class="slider-subtext">M6 Sliding Window O(1) cập nhật</div>
           </div>
 
+          <!-- 5. Kịch bản Monte Carlo SAA -->
           <div class="ctrl-group">
             <label for="inputScenarios" class="ctrl-label">KỊCH BẢN SAA (S):</label>
             <input type="number" id="inputScenarios" min="10" max="200" value="50" class="custom-input-number">
+            <div class="slider-subtext">Vòng lặp Monte Carlo M7</div>
           </div>
 
-          <div class="ctrl-actions">
+          <!-- Action Buttons -->
+          <div class="ctrl-actions-stacked">
             <button id="btnRunFullPipeline" class="btn btn-primary-gold run-pulse" type="button">
-              ▶️ Kích Hoạt Toàn Bộ 7 Module (M1 ➔ M7)
+              ⚡ TÍNH TOÁN LẠI TOÀN BỘ 7 MODULE
             </button>
             <button id="btnResetSystem" class="btn btn-outline" type="button">
-              🔄 Reset
+              🔄 Đặt Lại Mặc Định
             </button>
           </div>
         </div>
 
-        <!-- Bộ Sliders Demand Limits cho M4 Bounded Knapsack (GAP-4) -->
+        <!-- Bộ Nhập Số Lượng Nhu Cầu Từng Phân Khu (GAP-4) -->
         <div class="demand-sliders-bar">
           <div class="demand-title">
-            <span>⚙️ ĐIỀU CHỈNH NHU CẦU THỊ TRƯỜNG (DEMAND LIMITS - M4 KNAPSACK TỐI ƯU HÓA):</span>
+            <span>⚙️ NHẬP SỐ LƯỢNG VÉ NHU CẦU THỊ TRƯỜNG TỪNG PHÂN KHU (DEMAND LIMITS - M4 KNAPSACK TỐI ƯU):</span>
           </div>
           <div class="demand-sliders-grid">
             <div class="d-slider-item">
               <span class="d-name">VVIP:</span>
-              <input type="range" id="rangeDemandVVIP" min="1000" max="10000" step="500" value="5200" class="d-slider">
-              <span id="lblDemandVVIP" class="d-val">5,200</span>
+              <input type="number" id="inputDemandVVIP" min="100" max="50000" step="100" value="5200" class="d-input-num">
+              <input type="range" id="rangeDemandVVIP" min="500" max="15000" step="500" value="5200" class="d-slider">
             </div>
             <div class="d-slider-item">
               <span class="d-name">Platinum:</span>
-              <input type="range" id="rangeDemandPLATINUM" min="5000" max="25000" step="1000" value="13000" class="d-slider">
-              <span id="lblDemandPLATINUM" class="d-val">13,000</span>
+              <input type="number" id="inputDemandPLATINUM" min="500" max="50000" step="500" value="13000" class="d-input-num">
+              <input type="range" id="rangeDemandPLATINUM" min="2000" max="30000" step="1000" value="13000" class="d-slider">
             </div>
             <div class="d-slider-item">
               <span class="d-name">Gold:</span>
-              <input type="range" id="rangeDemandGOLD" min="10000" max="40000" step="1000" value="20000" class="d-slider">
-              <span id="lblDemandGOLD" class="d-val">20,000</span>
+              <input type="number" id="inputDemandGOLD" min="1000" max="80000" step="500" value="20000" class="d-input-num">
+              <input type="range" id="rangeDemandGOLD" min="5000" max="50000" step="1000" value="20000" class="d-slider">
             </div>
             <div class="d-slider-item">
               <span class="d-name">Silver:</span>
-              <input type="range" id="rangeDemandSILVER" min="5000" max="25000" step="1000" value="12000" class="d-slider">
-              <span id="lblDemandSILVER" class="d-val">12,000</span>
+              <input type="number" id="inputDemandSILVER" min="500" max="50000" step="500" value="12000" class="d-input-num">
+              <input type="range" id="rangeDemandSILVER" min="2000" max="30000" step="1000" value="12000" class="d-slider">
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Dàn thẻ chỉ số KPI Quốc Gia (National KPI Cards Strip) -->
+      <!-- ================================================================= -->
+      <!-- KHU VỰC 2: DÀN CHỈ SỐ KPI ĐẠI NHẠC HỘI QUỐC GIA                    -->
+      <!-- ================================================================= -->
       <div class="kpi-cards-grid">
         <div class="glass-card kpi-card">
           <div class="kpi-icon">🏟️</div>
@@ -425,47 +467,172 @@
         </div>
       </div>
 
-      <!-- Bộ 7 Tabs Trực Quan Hóa Thuật Toán (M1 ➔ M7) -->
-      <div class="glass-card algo-tabs-container">
-        <div class="algo-tabs-header">
-          <button class="tab-btn active" data-tab="tabM1">
-            <span class="tab-code">M1</span> Merge Sort
-            <span class="tab-badge">O(N log N)</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM2">
-            <span class="tab-code">M2</span> Max-Heap
-            <span class="tab-badge">O(K log N)</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM3">
-            <span class="tab-code">M3</span> Binary Search
-            <span class="tab-badge">M* Limit</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM4">
-            <span class="tab-code">M4</span> Knapsack DP
-            <span class="tab-badge">Phân bổ</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM5">
-            <span class="tab-code">M5</span> Soát Vé & Cổng
-            <span class="tab-badge">Greedy</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM6">
-            <span class="tab-code">M6</span> Sliding Window
-            <span class="tab-badge">O(1) & TTL</span>
-          </button>
-          <button class="tab-btn" data-tab="tabM7">
-            <span class="tab-code">M7</span> SAA Benchmark
-            <span class="tab-badge">Monte Carlo</span>
-          </button>
+      <!-- ================================================================= -->
+      <!-- KHU VỰC 3: TRÌNH DIỄN QUY TRÌNH THUẬT TOÁN STEP-BY-STEP (7 BƯỚC)   -->
+      <!-- ================================================================= -->
+      <div class="glass-card pipeline-stepper-container">
+        
+        <!-- Header Quy Trình & Bộ Điều Khiển Bước -->
+        <div class="pipeline-header-bar">
+          <div class="pipeline-title-group">
+            <span class="pipeline-badge">🚀 WORKFLOW TRỰC QUAN</span>
+            <h2 class="pipeline-heading">QUY TRÌNH LIÊN HOÀN 7 MODULE GIẢI THUẬT (PLOS ONE 2024)</h2>
+          </div>
+
+          <!-- Bộ điều khiển Step-by-Step -->
+          <div class="step-controller-box">
+            <button id="btnPrevStep" class="btn btn-step" type="button" title="Quay lại bước trước">
+              ◀️ Bước Trước
+            </button>
+            <div class="step-indicator-pill">
+              <span class="step-lbl">GIAI ĐOẠN:</span>
+              <strong id="txtCurrentStepIndicator">1 / 7</strong>
+            </div>
+            <button id="btnNextStep" class="btn btn-step" type="button" title="Sang bước kế tiếp">
+              Bước Tiếp ⏭️
+            </button>
+            <button id="btnAutoPlayStep" class="btn btn-primary-cyan btn-play" type="button">
+              <span id="txtAutoPlayIcon">▶️</span> <span id="txtAutoPlayText">Trình Diễn Tự Động</span>
+            </button>
+          </div>
         </div>
 
-        <div class="algo-tabs-body">
-          
-          <!-- TAB M1: MERGE SORT -->
-          <div class="tab-pane active" id="tabM1">
-            <div class="tab-intro-box">
-              <h3>M1: SẮP XẾP ỔN ĐỊNH DÒNG NGƯỜI VÀO PHÒNG CHỜ (CHIA ĐỂ TRỊ - MERGE SORT)</h3>
-              <p>Thuật toán Merge Sort viết tay chia nhỏ $150,000+$ yêu cầu theo từng Batch và sắp xếp ổn định (Stable Sort) theo thời điểm đến `arrival_time`. Ai cùng điểm ưu tiên nhưng đến trước thì vào mua trước.</p>
+        <!-- Thanh Điều Hướng 7 Bước Liên Hoàn (Horizontal Step Navigator) -->
+        <div class="pipeline-steps-track">
+          <div class="step-node active" data-step="1">
+            <div class="node-circle">🔀</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 1</span>
+              <span class="node-name">M1: Merge Sort</span>
+              <span class="node-tag">O(N log N)</span>
             </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="2">
+            <div class="node-circle">🎖️</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 2</span>
+              <span class="node-name">M2: Max-Heap</span>
+              <span class="node-tag">O(K log N)</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="3">
+            <div class="node-circle">⏱️</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 3</span>
+              <span class="node-name">M6: Sliding Window</span>
+              <span class="node-tag">O(1) Realtime</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="4">
+            <div class="node-circle">🎯</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 4</span>
+              <span class="node-name">M3: Binary Search</span>
+              <span class="node-tag">M* Bán Lố</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="5">
+            <div class="node-circle">🎒</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 5</span>
+              <span class="node-name">M4: Knapsack DP</span>
+              <span class="node-tag">Phân Bổ Vé</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="6">
+            <div class="node-circle">⏳</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 6</span>
+              <span class="node-name">M6: Min-Heap TTL</span>
+              <span class="node-tag">10 Phút Giữ Vé</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step-node" data-step="7">
+            <div class="node-circle">🏆</div>
+            <div class="node-info">
+              <span class="node-step">BƯỚC 7</span>
+              <span class="node-name">M5 & M7: SAA</span>
+              <span class="node-tag">Check-in & SAA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thẻ Tiêu Điểm 4 Cột Khoa Học (Scientific 4-Column Spotlight Card) -->
+        <div class="spotlight-card" id="stepSpotlightCard">
+          <div class="spotlight-header">
+            <div class="sp-title-box">
+              <span class="sp-code-pill" id="spModuleCode">M1</span>
+              <h3 class="sp-stage-title" id="spStageTitle">Giai Đoạn 1: Thu Nhận & Sắp Xếp Ổn Định Dòng Người</h3>
+            </div>
+            <div class="sp-meta-badges">
+              <span class="badge-time" id="spTimeComplexity">O(N log N)</span>
+              <span class="badge-space" id="spSpaceComplexity">O(N)</span>
+              <span class="badge-runtime" id="spRuntimeMs">Runtime: ~4 ms</span>
+            </div>
+          </div>
+
+          <div class="spotlight-grid-4col">
+            <!-- Cột 1: Đầu Vào (Input) -->
+            <div class="sp-col col-input">
+              <div class="sp-col-title">📥 1. DỮ LIỆU ĐẦU VÀO (INPUT)</div>
+              <p class="sp-col-desc" id="spInputDesc">
+                Nhận dòng yêu cầu thô từ 185,420 khán giả đổ về phòng chờ ảo với thời gian đến ngẫu nhiên và điểm tri ân.
+              </p>
+              <div class="sp-col-foot" id="spInputFoot">Nguồn: Hàng chờ VWR Ingestion</div>
+            </div>
+
+            <!-- Cột 2: Thuật Toán & Công Thức -->
+            <div class="sp-col col-algorithm">
+              <div class="sp-col-title">⚙️ 2. THUẬT TOÁN & CÔNG THỨC</div>
+              <p class="sp-col-desc" id="spAlgoDesc">
+                <strong>Merge Sort (Chia để trị):</strong> Chia đôi mảng đệ quy và trộn có trật tự đảm bảo Stable Sort.
+              </p>
+              <div class="sp-formula-box" id="spFormulaBox">
+                $$T(N) = 2T(N/2) + \mathcal{O}(N) \implies \mathcal{O}(N \log N)$$
+              </div>
+            </div>
+
+            <!-- Cột 3: Độ Phức Tạp & Hiệu Năng -->
+            <div class="sp-col col-complexity">
+              <div class="sp-col-title">⏱️ 3. ĐỘ PHỨC TẠP & HIỆU NĂNG</div>
+              <p class="sp-col-desc" id="spComplexityDesc">
+                Tối ưu cho tập dữ liệu lớn không bị suy thoái như QuickSort khi trùng arrival_time. Viết tay 100% không dùng hàm sort() có sẵn.
+              </p>
+              <div class="sp-col-foot" id="spComplexityFoot">Kiểm chứng: Zero Forbidden Libs</div>
+            </div>
+
+            <!-- Cột 4: Đầu Ra Bàn Giao (Pipeline Handoff) -->
+            <div class="sp-col col-output">
+              <div class="sp-col-title">📤 4. ĐẦU RA BÀN GIAO (OUTPUT)</div>
+              <p class="sp-col-desc" id="spOutputDesc">
+                Bàn giao hàng đợi có trật tự thời gian công bằng cho M2 Max-Heap để phân tách nhóm ưu tiên danh dự.
+              </p>
+              <div class="sp-col-foot" id="spOutputFoot">Chuyển sang: Module M2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Khung Trực Quan Hóa Dữ Liệu Sống (Live Stage Visualizer) -->
+        <div class="live-visualizer-container">
+          <div class="vis-header">
+            <span class="vis-badge">📊 DỮ LIỆU THỰC NGHIỆM RUNTIME</span>
+            <span class="vis-hint" id="visStageHint">Hiển thị dữ liệu trực tiếp sinh ra từ thuật toán của bước hiện tại:</span>
+          </div>
+
+          <!-- PANE BƯỚC 1: M1 MERGE SORT -->
+          <div class="stage-vis-pane active" id="stagePane1">
             <div class="tab-table-wrapper">
               <table class="data-table">
                 <thead>
@@ -484,15 +651,9 @@
             </div>
           </div>
 
-          <!-- TAB M2: MAX-HEAP -->
-          <div class="tab-pane" id="tabM2">
-            <div class="tab-intro-box">
-              <h3>M2: HÀNG ĐỢI ƯU TIÊN TRI ÂN QUỐC GIA (MAX-HEAP TỰ CÀI ĐẶT)</h3>
-              <p>Xây dựng cấu trúc Max-Heap mảng 1 chiều với `sift-up` và `sift-down`. Trích xuất Top-$K$ khán giả danh dự (Bà mẹ VNAH, Thương binh, CCB) lên đầu để hưởng quyền mua vé trước.</p>
-            </div>
-            <div class="heap-tree-mock" id="heapTreeVisualizer">
-              <!-- Render trực quan Top Heap -->
-            </div>
+          <!-- PANE BƯỚC 2: M2 MAX-HEAP -->
+          <div class="stage-vis-pane" id="stagePane2">
+            <div class="heap-tree-mock" id="heapTreeVisualizer"></div>
             <div class="tab-table-wrapper">
               <table class="data-table">
                 <thead>
@@ -511,35 +672,51 @@
             </div>
           </div>
 
-          <!-- TAB M3: BINARY SEARCH -->
-          <div class="tab-pane" id="tabM3">
-            <div class="tab-intro-box">
-              <h3>M3: TÌM HẠN MỨC BÁN LỐ TỐI ƯU M* (TÌM KIẾM NHỊ PHÂN TRÊN KHÔNG GIAN NGHIỆM)</h3>
-              <p>Thuật toán Binary Search co hẹp khoảng nghiệm $[C, 2C]$ kết hợp hàm phân phối nhị thức $K \sim \text{Binomial}(M, 1 - p)$ để tìm $M^*$ lớn nhất sao cho $P(K > C) \le \tau_0$.</p>
+          <!-- PANE BƯỚC 3: M6 SLIDING WINDOW -->
+          <div class="stage-vis-pane" id="stagePane3">
+            <div class="chart-canvas-wrapper">
+              <div class="chart-legend">
+                <span>📈 Biểu đồ biến thiên tỷ lệ bỏ vé thực tế $p(t)$ trong cửa sổ trượt $W=100$ giao dịch:</span>
+              </div>
+              <canvas id="canvasSlidingWindow" width="900" height="240"></canvas>
             </div>
+          </div>
+
+          <!-- PANE BƯỚC 4: M3 BINARY SEARCH TRACE -->
+          <div class="stage-vis-pane" id="stagePane4">
             <div class="trace-cards-grid" id="m3TraceContainer">
               <!-- Render search_trace từ API -->
             </div>
           </div>
 
-          <!-- TAB M4: BOUNDED KNAPSACK DP -->
-          <div class="tab-pane" id="tabM4">
-            <div class="tab-intro-box">
-              <h3>M4: QUY HOẠCH ĐỘNG PHÂN BỔ HẠN MỨC VÉ CHO 4 KHÁN ĐÀI (BOUNDED KNAPSACK DP)</h3>
-              <p>Phân bổ $M^*$ vé sao cho tối đa hóa tổng doanh thu nhưng không vượt quá `demand_limit` từng hạng. Nhóm đối tượng chính sách được bảo đảm trong `protected_pool` tách biệt.</p>
-            </div>
+          <!-- PANE BƯỚC 5: M4 BOUNDED KNAPSACK DP -->
+          <div class="stage-vis-pane" id="stagePane5">
             <div class="sector-allocation-summary" id="m4AllocationDisplay">
               <!-- Render thẻ phân bổ từ API -->
             </div>
           </div>
 
-          <!-- TAB M5: GREEDY CONFLICT -->
-          <div class="tab-pane" id="tabM5">
-            <div class="tab-intro-box">
-              <h3>M5: GIẢI THUẬT THAM LAM SOÁT VÉ CỔNG RẠP (GREEDY HEURISTIC & DENIED BOARDING)</h3>
-              <p>Mô phỏng quét vé tại 20 cổng soát vé điện tử. Khách đến nếu hết ghế đúng hạng sẽ được tự động nâng hạng hoặc hoàn tiền đền bù $150\%$. Nhóm chính sách được miễn trừ 100% khỏi Denied Boarding.</p>
+          <!-- PANE BƯỚC 6: M6 MIN-HEAP TTL -->
+          <div class="stage-vis-pane" id="stagePane6">
+            <div class="ttl-demo-box">
+              <div class="ttl-demo-card">
+                <div class="ttl-demo-icon">⏳</div>
+                <div class="ttl-demo-text">
+                  <h4>Cơ Chế Thu Hồi Ghế Min-Heap TTL</h4>
+                  <p>Mỗi vé sau khi chọn được gán thời hạn hết hạn <code>expires_at = now + 600s</code> (10 phút). Gốc Min-Heap luôn chứa vé có hạn ngắn nhất. Khi quét đến thời điểm hiện tại, vé chưa thanh toán tự động bị hủy và trả lại phòng chờ ảo.</p>
+                </div>
+                <div class="ttl-metric-tag">Gốc Min-Heap: Vé hết hạn sớm nhất</div>
+              </div>
             </div>
-            <div class="tab-table-wrapper">
+          </div>
+
+          <!-- PANE BƯỚC 7: M5 GREEDY & M7 SAA BENCHMARK -->
+          <div class="stage-vis-pane" id="stagePane7">
+            <div class="benchmark-comparison-table" id="m7BenchmarkDisplay">
+              <!-- Render bảng so sánh từ API -->
+            </div>
+            <div class="tab-table-wrapper" style="margin-top: 20px;">
+              <h4 style="margin-bottom: 10px; color: #60A5FA;">Nhật Ký Quét Vé & Xử Lý Xung Đột Cổng Rạp (M5 Greedy):</h4>
               <table class="data-table">
                 <thead>
                   <tr>
@@ -557,28 +734,73 @@
             </div>
           </div>
 
-          <!-- TAB M6: SLIDING WINDOW -->
-          <div class="tab-pane" id="tabM6">
-            <div class="tab-intro-box">
-              <h3>M6: CỬA SỔ TRƯỢT O(1) ĐO LƯỜNG TỶ LỆ RỚT & MIN-HEAP TTL THU HỒI VÉ QUÁ HẠN</h3>
-              <p>Cập nhật động tỷ lệ bỏ vé $p(t)$ trong thời gian thực bằng mảng xoay vòng và biến tích lũy $\mathcal{O}(1)$. Min-Heap tự động phát hiện và thu hồi vé chưa thanh toán sau 10 phút.</p>
-            </div>
-            <div class="chart-canvas-wrapper">
-              <canvas id="canvasSlidingWindow" width="900" height="260"></canvas>
-            </div>
-          </div>
+        </div>
 
-          <!-- TAB M7: SAA BENCHMARK -->
-          <div class="tab-pane" id="tabM7">
-            <div class="tab-intro-box">
-              <h3>M7: MÔ PHỎNG MONTE CARLO ĐỐI SOÁT CHIẾN LƯỢC PROPOSED (SAA) vs BASELINE (CỐ ĐỊNH)</h3>
-              <p>Mô phỏng $S$ kịch bản ngẫu nhiên của tỷ lệ bỏ vé $p$. Chứng minh mô hình bán lố đề xuất tối ưu hóa doanh thu vượt trội mà vẫn giữ rủi ro dưới ngưỡng $\tau_0$.</p>
-            </div>
-            <div class="benchmark-comparison-table" id="m7BenchmarkDisplay">
-              <!-- Render bảng so sánh từ API -->
-            </div>
-          </div>
+      </div>
 
+      <!-- ================================================================= -->
+      <!-- KHU VỰC 4: BẢN ĐỒ ĐỐI CHIẾU KHOA HỌC (SCIENTIFIC GROUNDING MATRIX) -->
+      <!-- ================================================================= -->
+      <div class="glass-card scientific-matrix-card">
+        <div class="card-header">
+          <h3 class="card-title">🏛️ BẢN ĐỒ ĐỐI CHIẾU KHOA HỌC: BÀI BÁO PLOS ONE (11/2024) ⟷ HỆ THỐNG CONCERT VWR</h3>
+          <span class="card-badge gold">Đại học Trung Nam (Trung Quốc) ➔ PTTKGT K26</span>
+        </div>
+        <div class="tab-table-wrapper">
+          <table class="data-table scientific-table">
+            <thead>
+              <tr>
+                <th>Khái niệm bài báo gốc (Đường sắt cao tốc - HSR)</th>
+                <th>Ánh xạ Đề tài (Virtual Waiting Room Concert Quốc Gia)</th>
+                <th>Ký hiệu</th>
+                <th>Module & Thuật toán giải quyết</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sức chứa đoàn tàu (Train Capacity)</strong></td>
+                <td>Sức chứa cứng khán phòng / Sân vận động Mỹ Đình</td>
+                <td><code class="code-pill">C</code></td>
+                <td>Ràng buộc vật lý cứng ($40,000$ ghế)</td>
+              </tr>
+              <tr>
+                <td><strong>Tỷ lệ hành khách bỏ chỗ (No-show rate)</strong></td>
+                <td>Tỷ lệ rớt mạng / hủy thanh toán trong phòng chờ ảo</td>
+                <td><code class="code-pill">p(t)</code></td>
+                <td><strong>M6:</strong> Sliding Window thời gian thực $\mathcal{O}(1)$</td>
+              </tr>
+              <tr>
+                <td><strong>Hạn mức bán vé quá tải (Overbooking limit)</strong></td>
+                <td>Hạn mức phát hành vé an toàn tối đa</td>
+                <td><code class="code-pill">M*</code></td>
+                <td><strong>M3:</strong> Binary Search + Phân phối nhị thức $\mathcal{O}(C \log C)$</td>
+              </tr>
+              <tr>
+                <td><strong>Phân bổ ghế chặng OD (Seat allocation)</strong></td>
+                <td>Phân bổ vé cho 4 phân khu (VVIP, Platinum, Gold, Silver)</td>
+                <td><code class="code-pill">allocation</code></td>
+                <td><strong>M4:</strong> Bounded Knapsack DP theo trần nhu cầu</td>
+              </tr>
+              <tr>
+                <td><strong>Hành khách VIP đường sắt</strong></td>
+                <td>Khách chính sách Tri Ân Quốc Gia (Bà mẹ VNAH, Thương binh)</td>
+                <td><code class="code-pill">priority</code></td>
+                <td><strong>M2:</strong> Max-Heap Priority Queue trích xuất Top-$K$</td>
+              </tr>
+              <tr>
+                <td><strong>Bồi thường từ chối lên tàu (Denied Boarding)</strong></td>
+                <td>Tự động nâng hạng ghế hoặc bồi thường $150\%$ tiền vé</td>
+                <td><code class="code-pill">compensation</code></td>
+                <td><strong>M5:</strong> Greedy Heuristic (Bảo vệ tri ân $100\%$)</td>
+              </tr>
+              <tr>
+                <td><strong>Sample Average Approximation (SAA)</strong></td>
+                <td>Mô phỏng Monte Carlo $S$ kịch bản đối soát Đề xuất vs Cố định</td>
+                <td><code class="code-pill">SAA</code></td>
+                <td><strong>M7:</strong> SAA Benchmark $S=50$ kịch bản</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

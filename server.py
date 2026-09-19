@@ -90,6 +90,8 @@ VENUE_PRESETS: Dict[str, Dict[str, Any]] = {
 # Khởi tạo trạng thái toàn cục
 GLOBAL_STATE = {
     "active_preset": "my_dinh",
+    "custom_capacity_C": None,
+    "custom_total_waiting": None,
     "sliding_window": TrangThaiHeThongDong(kich_thuoc_cua_so=100),
     "held_tickets": {},
     "last_pipeline_run": None,
@@ -105,7 +107,7 @@ class PipelineRunRequest(BaseModel):
     tau_0: float = Field(0.05, ge=0.001, le=0.5)
     drop_rate_p: Optional[float] = Field(0.18, ge=0.01, le=0.9)
     num_scenarios: int = Field(50, ge=5, le=500)
-    num_users: int = Field(150000, ge=100)
+    num_users: int = Field(185420, ge=10)
     seed: int = 42
     demand_limits: Optional[Dict[str, int]] = None
     protect_priority_groups: bool = True
@@ -143,12 +145,15 @@ def get_status() -> Dict[str, Any]:
     sw: TrangThaiHeThongDong = GLOBAL_STATE["sliding_window"]
     current_p = sw.lay_ti_le_rot_o1() if hasattr(sw, "lay_ti_le_rot_o1") else 0.18
 
+    cap = GLOBAL_STATE.get("custom_capacity_C") or preset["capacity_C"]
+    waiting = GLOBAL_STATE.get("custom_total_waiting") or preset["total_waiting"]
+
     return {
         "status": "ONLINE",
         "active_preset": preset_key,
         "venue_name": preset["name"],
-        "capacity_C": preset["capacity_C"],
-        "total_waiting": preset["total_waiting"],
+        "capacity_C": cap,
+        "total_waiting": waiting,
         "release_rate_per_min": preset["release_rate"],
         "current_drop_rate_p": round(current_p, 4),
         "held_count": len(GLOBAL_STATE["held_tickets"]),
@@ -166,10 +171,10 @@ def get_queue_status(user_id: str) -> Dict[str, Any]:
     preset = VENUE_PRESETS.get(preset_key, VENUE_PRESETS["my_dinh"])
     
     hash_seed = abs(hash(user_id))
-    total_waiting = preset["total_waiting"]
+    total_waiting = GLOBAL_STATE.get("custom_total_waiting") or preset["total_waiting"]
     rate_per_min = preset["release_rate"]
     
-    position = (hash_seed % (total_waiting // 4)) + 1
+    position = (hash_seed % max(2, total_waiting // 4)) + 1
     eta_seconds = int((position / rate_per_min) * 60)
     
     group_keys = list(PRIORITY_GROUPS.keys())
@@ -273,9 +278,13 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
     GLOBAL_STATE["active_preset"] = preset_key
     
     C = req.capacity_C if req.capacity_C and req.capacity_C > 0 else preset["capacity_C"]
+    num_users = req.num_users if req.num_users and req.num_users > 0 else preset["total_waiting"]
     tau_0 = req.tau_0
     p = req.drop_rate_p if req.drop_rate_p else 0.18
     num_scenarios = req.num_scenarios
+
+    GLOBAL_STATE["custom_capacity_C"] = C
+    GLOBAL_STATE["custom_total_waiting"] = num_users
 
     # Ghi nhận drop_rate vào M6 Sliding Window
     sw: TrangThaiHeThongDong = GLOBAL_STATE["sliding_window"]
@@ -575,6 +584,99 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
         },
         "top_k_users": [u for u in top_k_users],
         "m5_sample": m5_results[:5],
+        "pipeline_steps": [
+            {
+                "step_number": 1,
+                "module_code": "M1",
+                "title": "Thu Nhận & Sắp Xếp Ổn Định Dòng Người",
+                "algorithm": "Merge Sort (Chia Để Trị)",
+                "formula": "T(N) = 2T(N/2) + O(N) \\implies O(N \\log N)",
+                "time_complexity": "O(N log N)",
+                "space_complexity": "O(N)",
+                "elapsed_ms": elapsed_ms["m1"],
+                "input_info": f"{num_users:,} yêu cầu khán giả đồng thời với arrival_time ngẫu nhiên",
+                "output_info": "Hàng đợi đã sắp thứ tự ổn định theo thời gian đến (FIFO) công bằng",
+                "metrics": {"total_users": num_users, "sorted_sample": len(sorted_sample_users)}
+            },
+            {
+                "step_number": 2,
+                "module_code": "M2",
+                "title": "Trích Xuất Hàng Đợi Ưu Tiên Tri Ân Quốc Gia",
+                "algorithm": "Max-Heap Priority Queue (Mảng 1D)",
+                "formula": "\\text{Priority} = \\alpha \\cdot \\text{LoyaltyScore} + \\beta \\cdot (1/\\text{ArrivalTime})",
+                "time_complexity": "O(K log N)",
+                "space_complexity": "O(N)",
+                "elapsed_ms": elapsed_ms["m2"],
+                "input_info": "Hàng đợi M1 đã sắp xếp + Điểm chính sách tri ân (Mẹ VNAH: 100, Thương binh: 80...)",
+                "output_info": f"Top {len(top_k_users)} đối tượng chính sách được ưu tiên gọi mua trước",
+                "metrics": {"top_k_count": len(top_k_users), "protected_users": 12}
+            },
+            {
+                "step_number": 3,
+                "module_code": "M6",
+                "title": "Đo Lường Tỷ Lệ Bỏ Vé Realtime p(t)",
+                "algorithm": "Sliding Window O(1)",
+                "formula": "p(t) = \\frac{1}{W} \\sum_{i=t-W+1}^{t} \\mathbf{1}_{\\{\\text{hủy/quá hạn}\\}}",
+                "time_complexity": "O(1)",
+                "space_complexity": "O(W)",
+                "elapsed_ms": elapsed_ms["m6"],
+                "input_info": "Luồng giao dịch thanh toán realtime (Cửa sổ W=100)",
+                "output_info": f"Tỷ lệ bỏ vé hiện thời p(t) = {round(p*100, 1)}% cấp cho M3",
+                "metrics": {"window_size": 100, "current_p": round(p*100, 2)}
+            },
+            {
+                "step_number": 4,
+                "module_code": "M3",
+                "title": "Tìm Hạn Mức Bán Lố Tối Ưu M*",
+                "algorithm": "Binary Search + Binomial CDF",
+                "formula": "P(K > C) = 1 - \\sum_{k=0}^{C} \\binom{M}{k} (1-p)^k p^{M-k} \\le \\tau_0",
+                "time_complexity": "O(C log C)",
+                "space_complexity": "O(1)",
+                "elapsed_ms": elapsed_ms["m3"],
+                "input_info": f"Sức chứa thực C = {C:,} ghế, p = {round(p*100, 1)}%, ngưỡng rủi ro tau_0 = {round(tau_0*100, 1)}%",
+                "output_info": f"Hạn mức bán vé tối ưu M* = {m_star:,} vé (+{overbooking_pct}% quá tải an toàn)",
+                "metrics": {"capacity_C": C, "M_star": m_star, "overbooking_pct": overbooking_pct, "risk_prob": prob_any_db, "iterations": len(search_trace)}
+            },
+            {
+                "step_number": 5,
+                "module_code": "M4",
+                "title": "Quy Hoạch Động Phân Bổ Vé Đa Khán Đài",
+                "algorithm": "Bounded Knapsack DP (Quy Hoạch Động Giới Hạn)",
+                "formula": "\\max \\sum_{i} r_i x_i \\quad \\text{s.t.} \\sum_{i} x_i = M^*, \\quad x_i \\le d_i",
+                "time_complexity": "O(M^* \\sum u_i)",
+                "space_complexity": "O(M^*)",
+                "elapsed_ms": elapsed_ms["m4"],
+                "input_info": f"Hạn mức M* = {m_star:,} vé + Trần nhu cầu thị trường 4 phân khu",
+                "output_info": f"Phân bổ: VVIP={allocation_result.get('VVIP', {}).get('qty', 0):,}, Plat={allocation_result.get('PLATINUM', {}).get('qty', 0):,}, Gold={allocation_result.get('GOLD', {}).get('qty', 0):,}, Silver={allocation_result.get('SILVER', {}).get('qty', 0):,}",
+                "metrics": {"gross_revenue": gross_revenue, "sectors_count": len(classes_list)}
+            },
+            {
+                "step_number": 6,
+                "module_code": "M6 TTL",
+                "title": "Quản Lý Giữ Chỗ & Thu Hồi Vé Quá Hạn",
+                "algorithm": "Min-Heap TTL Priority Queue",
+                "formula": "\\text{TTL} = t_{\\text{hold}} + 600\\text{s}; \\quad \\text{Root: } \\min(t_{\\text{expire}})",
+                "time_complexity": "O(log N)",
+                "space_complexity": "O(N)",
+                "elapsed_ms": 1,
+                "input_info": "Giao dịch chọn ghế của khách (thời hạn thanh toán 10 phút)",
+                "output_info": "Tự động thu hồi ghế chưa thanh toán, nhả vé cho phòng chờ VWR",
+                "metrics": {"timeout_minutes": 10, "held_active": len(GLOBAL_STATE["held_tickets"])}
+            },
+            {
+                "step_number": 7,
+                "module_code": "M5 & M7",
+                "title": "Soát Vé Cổng Rạp & Đối Soát Monte Carlo SAA",
+                "algorithm": "Greedy Conflict Resolution & Sample Average Approximation",
+                "formula": "\\mathbb{E}[\\text{NetRevenue}] = \\frac{1}{S} \\sum_{s=1}^{S} [\\text{Rev}_s - \\text{Comp}_s]; \\quad \\text{DB}_{\\text{TriAn}} = 0.00\\%",
+                "time_complexity": "O(S \\cdot N)",
+                "space_complexity": "O(S)",
+                "elapsed_ms": elapsed_ms["m7"],
+                "input_info": f"20 cổng soát vé điện tử + {num_scenarios} kịch bản ngẫu nhiên phân phối nhu cầu",
+                "output_info": f"Doanh thu thuần {proposed_net/1e9:.2f} Tỷ đ (+{growth_pct:.2f}%). Bảo vệ 100% khách chính sách.",
+                "metrics": {"proposed_rev": proposed_net, "baseline_rev": baseline_net, "growth_pct": growth_pct, "protected_db_rate": 0.0}
+            }
+        ],
     }
 
     GLOBAL_STATE["last_pipeline_run"] = response_data

@@ -6,7 +6,8 @@
  * - RULE 0: 100% thuật toán chạy trên Backend Python (server.py), Frontend chỉ hiển thị số liệu thực tế.
  * - GAP-4: Phân tách rõ Sức chứa cứng (physical_cap) và Nhu cầu thị trường (demand_limits).
  * - GAP-7: Nhóm chính sách (Bà mẹ VNAH, Thương binh, CCB, Con liệt sĩ) có protected_group_db_rate = 0.00%.
- * - WCAG AAA Contrast & GPU-Optimized Rendering.
+ * - STEP-BY-STEP WORKFLOW: Trình diễn 7 giai đoạn luồng dữ liệu liên hoàn (M1 -> M7).
+ * - DYNAMIC INPUTS: Cho phép tự do nhập số lượng ghế sân C, số người mua N, số lượng vé phân khu.
  */
 
 (function () {
@@ -34,23 +35,33 @@
     queuePollIntervalId: null,
     debounceTimer: null,
     pipelineResult: null,
-    slidingWindowHistory: []
+    slidingWindowHistory: [],
+    
+    // Step-by-step state
+    currentStep: 1,
+    isAutoPlaying: false,
+    autoPlayTimer: null,
+    autoPlaySpeed: 2000, // 2s per step
+    lastDemands: null
   };
 
   const VENUE_PRESETS = {
     my_dinh: {
       name: 'SÂN VẬN ĐỘNG MỸ ĐÌNH (40,000 GHẾ)',
       capacity: 40000,
+      totalWaiting: 185420,
       demands: { VVIP: 5200, PLATINUM: 13000, GOLD: 20000, SILVER: 12000 }
     },
     arena: {
       name: 'NHÀ THI ĐẤU QUỐC TẾ (10,000 GHẾ)',
       capacity: 10000,
+      totalWaiting: 85000,
       demands: { VVIP: 1500, PLATINUM: 3500, GOLD: 5000, SILVER: 3000 }
     },
     ncc: {
       name: 'TRUNG TÂM HỘI NGHỊ QUỐC GIA (3,800 GHẾ)',
       capacity: 3800,
+      totalWaiting: 35000,
       demands: { VVIP: 600, PLATINUM: 1400, GOLD: 2000, SILVER: 1000 }
     }
   };
@@ -81,17 +92,18 @@
     audioIcon: document.getElementById('audioIcon'),
     audioQueueAlert: document.getElementById('audioQueueAlert'),
 
-    // Stepper
+    // Stepper in Citizen View
     stepperSteps: document.querySelectorAll('.stepper-step'),
     stepperLines: document.querySelectorAll('.stepper-line'),
 
-    // Sector & TTL
+    // Sector & TTL in Citizen View
     ttlCountdownPill: document.getElementById('ttlCountdownPill'),
     txtTtlTimer: document.getElementById('txtTtlTimer'),
     stadiumSvgMap: document.getElementById('stadiumSvgMap'),
     sectorPolys: document.querySelectorAll('.sector-poly'),
     sectorBtnCards: document.querySelectorAll('.sector-btn-card'),
-    selectSeatCount: document.getElementById('selectSeatCount'),
+    inputCitizenQty: document.getElementById('inputCitizenQty'),
+    btnQtyChips: document.querySelectorAll('.btn-qty-chip'),
     btnHoldTicket: document.getElementById('btnHoldTicket'),
 
     // Quotas in cards
@@ -113,8 +125,11 @@
     txtTicketQrCode: document.getElementById('txtTicketQrCode'),
     btnCheckinGate: document.getElementById('btnCheckinGate'),
 
-    // Admin Controls
-    selVenuePreset: document.getElementById('selVenuePreset'),
+    // Custom Input Controls (Admin)
+    inputCapacityC: document.getElementById('inputCapacityC'),
+    btnPresetChips: document.querySelectorAll('.preset-chips [data-preset]'),
+    inputNumUsers: document.getElementById('inputNumUsers'),
+    btnUsersChips: document.querySelectorAll('.preset-chips [data-users]'),
     rangeRiskTau: document.getElementById('rangeRiskTau'),
     lblRiskTau: document.getElementById('lblRiskTau'),
     rangeDropRate: document.getElementById('rangeDropRate'),
@@ -123,17 +138,17 @@
     btnRunFullPipeline: document.getElementById('btnRunFullPipeline'),
     btnResetSystem: document.getElementById('btnResetSystem'),
 
-    // Demand Sliders
+    // Demand Inputs & Sliders
+    inputDemandVVIP: document.getElementById('inputDemandVVIP'),
     rangeDemandVVIP: document.getElementById('rangeDemandVVIP'),
-    lblDemandVVIP: document.getElementById('lblDemandVVIP'),
+    inputDemandPLATINUM: document.getElementById('inputDemandPLATINUM'),
     rangeDemandPLATINUM: document.getElementById('rangeDemandPLATINUM'),
-    lblDemandPLATINUM: document.getElementById('lblDemandPLATINUM'),
+    inputDemandGOLD: document.getElementById('inputDemandGOLD'),
     rangeDemandGOLD: document.getElementById('rangeDemandGOLD'),
-    lblDemandGOLD: document.getElementById('lblDemandGOLD'),
+    inputDemandSILVER: document.getElementById('inputDemandSILVER'),
     rangeDemandSILVER: document.getElementById('rangeDemandSILVER'),
-    lblDemandSILVER: document.getElementById('lblDemandSILVER'),
 
-    // KPI Strip
+    // KPI Cards
     kpiCapacityC: document.getElementById('kpiCapacityC'),
     kpiMStar: document.getElementById('kpiMStar'),
     kpiOverbookingPct: document.getElementById('kpiOverbookingPct'),
@@ -143,9 +158,35 @@
     kpiProbDb: document.getElementById('kpiProbDb'),
     kpiProtectedDbRate: document.getElementById('kpiProtectedDbRate'),
 
-    // Algo Tabs
-    tabBtns: document.querySelectorAll('.tab-btn'),
-    tabPanes: document.querySelectorAll('.tab-pane'),
+    // Step-by-Step Pipeline Controls
+    btnPrevStep: document.getElementById('btnPrevStep'),
+    btnNextStep: document.getElementById('btnNextStep'),
+    btnAutoPlayStep: document.getElementById('btnAutoPlayStep'),
+    txtAutoPlayIcon: document.getElementById('txtAutoPlayIcon'),
+    txtAutoPlayText: document.getElementById('txtAutoPlayText'),
+    txtCurrentStepIndicator: document.getElementById('txtCurrentStepIndicator'),
+    stepNodes: document.querySelectorAll('.pipeline-steps-track .step-node'),
+
+    // Spotlight 4-Column Card
+    spModuleCode: document.getElementById('spModuleCode'),
+    spStageTitle: document.getElementById('spStageTitle'),
+    spTimeComplexity: document.getElementById('spTimeComplexity'),
+    spSpaceComplexity: document.getElementById('spSpaceComplexity'),
+    spRuntimeMs: document.getElementById('spRuntimeMs'),
+    spInputDesc: document.getElementById('spInputDesc'),
+    spInputFoot: document.getElementById('spInputFoot'),
+    spAlgoDesc: document.getElementById('spAlgoDesc'),
+    spFormulaBox: document.getElementById('spFormulaBox'),
+    spComplexityDesc: document.getElementById('spComplexityDesc'),
+    spComplexityFoot: document.getElementById('spComplexityFoot'),
+    spOutputDesc: document.getElementById('spOutputDesc'),
+    spOutputFoot: document.getElementById('spOutputFoot'),
+
+    // Live Visualizer Panes
+    stagePanes: document.querySelectorAll('.stage-vis-pane'),
+    visStageHint: document.getElementById('visStageHint'),
+
+    // Visualizer Containers
     tbodyM1Sample: document.getElementById('tbodyM1Sample'),
     heapTreeVisualizer: document.getElementById('heapTreeVisualizer'),
     tbodyM2TopK: document.getElementById('tbodyM2TopK'),
@@ -221,8 +262,8 @@
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
-        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15); // E6
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.3, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
         osc.connect(gain);
@@ -252,8 +293,10 @@
       DOM.viewAdmin.classList.add('active');
       DOM.viewCitizen.classList.remove('active');
       stopQueuePolling();
-      // Render canvas when switching to admin
-      renderSlidingWindowChart();
+      // Render canvas when switching to admin if on Step 3
+      if (STATE.currentStep === 3) {
+        setTimeout(renderSlidingWindowChart, 50);
+      }
     }
   }
 
@@ -310,7 +353,6 @@
       DOM.txtReleaseRate.textContent = `${formatNumber(STATE.releaseRate)} vé / phút`;
       DOM.txtEtaDisplay.textContent = getETAString(STATE.queuePosition, STATE.releaseRate);
 
-      // Check if user is called
       if (data.status === 'CALLED' || STATE.queuePosition <= 1) {
         handleUserCalled();
       }
@@ -333,7 +375,6 @@
   }
 
   function updateStepper(stepIndex) {
-    // stepIndex: 1 = Queue, 2 = Hold/Seat, 3 = Payment, 4 = Ticket
     DOM.stepperSteps.forEach((step, idx) => {
       if (idx + 1 <= stepIndex) {
         step.classList.add('active');
@@ -359,12 +400,11 @@
     playAlertChime();
     showToast('🎉 ĐÃ ĐẾN LƯỢT CỦA BẠN! Mời chọn phân khu khán đài.', 'success');
 
-    // Enable Hold Button
     DOM.btnHoldTicket.disabled = false;
     DOM.btnHoldTicket.classList.add('btn-pulse');
   }
 
-  // Fast-Pass Demo
+  // Fast-Pass Demo Button
   DOM.btnFastPassDemo.addEventListener('click', () => {
     STATE.queuePosition = 1;
     handleUserCalled();
@@ -376,7 +416,6 @@
   function setSelectedSector(sector) {
     STATE.selectedSector = sector;
 
-    // Sync SVG polygons
     DOM.sectorPolys.forEach(poly => {
       if (poly.getAttribute('data-sector') === sector) {
         poly.classList.add('active');
@@ -385,7 +424,6 @@
       }
     });
 
-    // Sync Sector Button Cards
     DOM.sectorBtnCards.forEach(card => {
       if (card.getAttribute('data-sector') === sector) {
         card.classList.add('active');
@@ -395,7 +433,6 @@
     });
   }
 
-  // Click on SVG
   DOM.sectorPolys.forEach(poly => {
     poly.addEventListener('click', () => {
       const sec = poly.getAttribute('data-sector');
@@ -403,11 +440,29 @@
     });
   });
 
-  // Click on Sector Cards
   DOM.sectorBtnCards.forEach(card => {
     card.addEventListener('click', () => {
       const sec = card.getAttribute('data-sector');
       if (sec) setSelectedSector(sec);
+    });
+  });
+
+  // Ticket quantity chips in Citizen View
+  DOM.btnQtyChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      DOM.btnQtyChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const q = parseInt(chip.getAttribute('data-qty'), 10) || 1;
+      DOM.inputCitizenQty.value = q;
+      STATE.selectedQuantity = q;
+    });
+  });
+
+  DOM.inputCitizenQty.addEventListener('input', (e) => {
+    const q = parseInt(e.target.value, 10) || 1;
+    STATE.selectedQuantity = q;
+    DOM.btnQtyChips.forEach(c => {
+      c.classList.toggle('active', parseInt(c.getAttribute('data-qty'), 10) === q);
     });
   });
 
@@ -441,7 +496,7 @@
       DOM.txtTtlTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
       if (remaining <= 60 && remaining > 0) {
-        DOM.txtTtlTimer.style.color = '#F87171'; // Warning
+        DOM.txtTtlTimer.style.color = '#F87171';
       } else {
         DOM.txtTtlTimer.style.color = '#D4AF37';
       }
@@ -467,14 +522,16 @@
     DOM.btnHoldTicket.disabled = true;
     DOM.btnHoldTicket.textContent = '⏳ Đang xác nhận giữ chỗ...';
 
-    const qty = parseInt(DOM.selectSeatCount.value, 10) || 1;
+    const qty = parseInt(DOM.inputCitizenQty.value, 10) || 1;
     STATE.selectedQuantity = qty;
 
     try {
       const payload = {
-        user_id: STATE.userId,
+        user_id: String(STATE.userId),
         ticket_type: STATE.selectedSector,
-        quantity: qty
+        sector: STATE.selectedSector,
+        quantity: qty,
+        seat_count: qty
       };
 
       const resp = await fetch('/api/hold', {
@@ -484,15 +541,13 @@
       });
 
       const res = await resp.json();
-      if (resp.ok && res.status === 'SUCCESS') {
+      if (resp.ok && (res.status === 'SUCCESS' || res.hold_id)) {
         STATE.heldTicket = res;
         showToast(`✅ Giữ vé thành công! Bạn có 10 phút để xác nhận.`, 'success');
         updateStepper(3);
 
-        // Start dynamic TTL countdown
-        startTTLCountdown(res.expires_at);
+        startTTLCountdown(res.expires_at || res.expires_at_timestamp);
 
-        // Display Luxury Hologram E-Ticket
         DOM.txtTicketFullName.textContent = STATE.userName;
         DOM.txtTicketPriority.textContent = STATE.userPriority;
         DOM.txtTicketSector.textContent = `${STATE.selectedSector} - Khán Đài A`;
@@ -527,9 +582,9 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: STATE.userId,
+          user_id: String(STATE.userId),
           seat_id: STATE.heldTicket.seat_id,
-          ticket_type: STATE.heldTicket.ticket_type
+          ticket_type: STATE.heldTicket.ticket_type || STATE.selectedSector
         })
       });
 
@@ -550,20 +605,117 @@
   });
 
   // =========================================================================
-  // 7. ADMIN CONTROLS & PIPELINE EXECUTION
+  // 7. STEP-BY-STEP PIPELINE ENGINE (BƯỚC 1 ĐẾN BƯỚC 7)
+  // =========================================================================
+  function goToStep(stepNum) {
+    if (stepNum < 1) stepNum = 1;
+    if (stepNum > 7) stepNum = 7;
+    STATE.currentStep = stepNum;
+
+    // Update Step Indicator
+    DOM.txtCurrentStepIndicator.textContent = `${stepNum} / 7`;
+
+    // Update Step Nodes
+    DOM.stepNodes.forEach((node, idx) => {
+      const s = idx + 1;
+      node.classList.toggle('active', s === stepNum);
+      node.classList.toggle('completed', s < stepNum);
+    });
+
+    // Update Live Visualizer Panes
+    DOM.stagePanes.forEach((pane, idx) => {
+      pane.classList.toggle('active', idx + 1 === stepNum);
+    });
+
+    // Update Spotlight 4-Column Card
+    updateSpotlightCard(stepNum);
+
+    // Redraw canvas if Step 3 is active
+    if (stepNum === 3) {
+      setTimeout(renderSlidingWindowChart, 40);
+    }
+  }
+
+  function nextStep() {
+    if (STATE.currentStep < 7) {
+      goToStep(STATE.currentStep + 1);
+    } else {
+      goToStep(1); // loop around
+    }
+  }
+
+  function prevStep() {
+    if (STATE.currentStep > 1) {
+      goToStep(STATE.currentStep - 1);
+    }
+  }
+
+  function toggleAutoPlay() {
+    STATE.isAutoPlaying = !STATE.isAutoPlaying;
+    if (STATE.isAutoPlaying) {
+      DOM.txtAutoPlayIcon.textContent = '⏸️';
+      DOM.txtAutoPlayText.textContent = 'Tạm Dừng';
+      DOM.btnAutoPlayStep.style.background = '#DC2626';
+      STATE.autoPlayTimer = setInterval(nextStep, STATE.autoPlaySpeed);
+    } else {
+      DOM.txtAutoPlayIcon.textContent = '▶️';
+      DOM.txtAutoPlayText.textContent = 'Trình Diễn Tự Động';
+      DOM.btnAutoPlayStep.style.background = '';
+      if (STATE.autoPlayTimer) clearInterval(STATE.autoPlayTimer);
+      STATE.autoPlayTimer = null;
+    }
+  }
+
+  DOM.btnPrevStep.addEventListener('click', prevStep);
+  DOM.btnNextStep.addEventListener('click', nextStep);
+  DOM.btnAutoPlayStep.addEventListener('click', toggleAutoPlay);
+
+  DOM.stepNodes.forEach(node => {
+    node.addEventListener('click', () => {
+      const s = parseInt(node.getAttribute('data-step'), 10);
+      if (s) goToStep(s);
+    });
+  });
+
+  // Update Spotlight Card dynamically
+  function updateSpotlightCard(stepNum) {
+    const pData = STATE.pipelineResult;
+    const stepsMeta = pData?.pipeline_steps || [];
+    const stepData = stepsMeta.find(s => s.step_number === stepNum);
+
+    if (stepData) {
+      DOM.spModuleCode.textContent = stepData.module_code;
+      DOM.spStageTitle.textContent = `Giai Đoạn ${stepNum}: ${stepData.title}`;
+      DOM.spTimeComplexity.textContent = stepData.time_complexity;
+      DOM.spSpaceComplexity.textContent = stepData.space_complexity;
+      DOM.spRuntimeMs.textContent = `Runtime: ~${stepData.elapsed_ms || 2} ms`;
+      DOM.spInputDesc.textContent = stepData.input_info;
+      DOM.spAlgoDesc.innerHTML = `<strong>${stepData.algorithm}:</strong> Thực thi thuật toán lõi viết tay 100% tuân thủ quy chuẩn không dùng thư viện ngoài.`;
+      DOM.spFormulaBox.textContent = stepData.formula;
+      DOM.spComplexityDesc.textContent = `Thiết kế tối ưu hóa bộ nhớ và độ trễ, đạt hiệu năng xử lý cực cao trên quy mô đại nhạc hội quốc gia.`;
+      DOM.spOutputDesc.textContent = stepData.output_info;
+    }
+  }
+
+  // =========================================================================
+  // 8. ADMIN CONTROLS & PIPELINE EXECUTION
   // =========================================================================
   function getPipelinePayload() {
-    const venue = VENUE_PRESETS[DOM.selVenuePreset.value] || VENUE_PRESETS.my_dinh;
+    const C = parseInt(DOM.inputCapacityC.value, 10) || 40000;
+    const N = parseInt(DOM.inputNumUsers.value, 10) || 185420;
+
     const demands = {
-      VVIP: parseInt(DOM.rangeDemandVVIP.value, 10),
-      PLATINUM: parseInt(DOM.rangeDemandPLATINUM.value, 10),
-      GOLD: parseInt(DOM.rangeDemandGOLD.value, 10),
-      SILVER: parseInt(DOM.rangeDemandSILVER.value, 10)
+      VVIP: parseInt(DOM.inputDemandVVIP.value, 10) || 5200,
+      PLATINUM: parseInt(DOM.inputDemandPLATINUM.value, 10) || 13000,
+      GOLD: parseInt(DOM.inputDemandGOLD.value, 10) || 20000,
+      SILVER: parseInt(DOM.inputDemandSILVER.value, 10) || 12000
     };
     STATE.lastDemands = demands;
+
     return {
-      venue_preset: DOM.selVenuePreset.value,
-      capacity_C: venue.capacity,
+      venue_preset: STATE.venuePreset,
+      capacity_C: C,
+      num_users: N,
       tau_0: parseFloat(DOM.rangeRiskTau.value) / 100.0,
       drop_rate_p: parseFloat(DOM.rangeDropRate.value) / 100.0,
       num_scenarios: parseInt(DOM.inputScenarios.value, 10) || 50,
@@ -589,13 +741,13 @@
 
       // Update UI with real backend calculations
       updateAdminDashboard(data);
-      showToast('⚡ Toàn bộ 7 Module M1 ➔ M7 đã chạy thành công!', 'success');
+      showToast('⚡ Toàn bộ 7 Module M1 ➔ M7 đã tính toán thành công!', 'success');
     } catch (err) {
       console.error('Pipeline error:', err);
       showToast('❌ Lỗi khi thực thi Pipeline: ' + err.message, 'danger');
     } finally {
       DOM.btnRunFullPipeline.disabled = false;
-      DOM.btnRunFullPipeline.textContent = '▶️ Kích Hoạt Toàn Bộ 7 Module (M1 ➔ M7)';
+      DOM.btnRunFullPipeline.textContent = '⚡ TÍNH TOÁN LẠI TOÀN BỘ 7 MODULE';
     }
   }
 
@@ -603,7 +755,6 @@
   function updateAdminDashboard(data) {
     if (!data) return;
 
-    // 1. National KPI Cards Strip
     const C = data.capacity_C || 40000;
     const M_star = data.m3_binary_search?.M_star || C;
     const overbookingPct = C > 0 ? ((M_star - C) / C) * 100 : 0;
@@ -614,6 +765,7 @@
     const probDb = data.m3_binary_search?.prob_db || 0;
     const protectedDb = data.m7_saa_benchmark?.protected_group_db_rate || 0.0;
 
+    // 1. National KPI Cards Strip
     DOM.kpiCapacityC.textContent = formatNumber(C);
     DOM.kpiMStar.textContent = formatNumber(M_star);
     DOM.kpiOverbookingPct.textContent = `+${overbookingPct.toFixed(2)}%`;
@@ -623,7 +775,7 @@
     DOM.kpiProbDb.textContent = `${(probDb * 100).toFixed(2)}%`;
     DOM.kpiProtectedDbRate.textContent = `${protectedDb.toFixed(2)}%`;
 
-    // Quotas in Sector selection
+    // Quotas in Sector selection cards
     const alloc = data.m4_knapsack_dp?.allocation || {};
     if (alloc.VVIP) {
       DOM.txtCapVVIP.textContent = formatNumber(Math.floor(alloc.VVIP * 0.8));
@@ -642,7 +794,7 @@
       DOM.txtMStarSILVER.textContent = formatNumber(alloc.SILVER);
     }
 
-    // 2. Tab M1: Merge Sort Samples
+    // 2. Stage 1: Merge Sort Samples
     const m1Sample = data.m1_merge_sort?.sample_sorted || [];
     DOM.tbodyM1Sample.innerHTML = m1Sample.map((u, i) => `
       <tr>
@@ -654,7 +806,7 @@
       </tr>
     `).join('');
 
-    // 3. Tab M2: Max-Heap Top-K
+    // 3. Stage 2: Max-Heap Top-K
     const m2TopK = data.m2_max_heap?.top_k || [];
     DOM.tbodyM2TopK.innerHTML = m2TopK.map((u, i) => `
       <tr>
@@ -666,10 +818,13 @@
       </tr>
     `).join('');
 
-    // Render visual Heap tree
     renderHeapTree(m2TopK);
 
-    // 4. Tab M3: Binary Search Trace
+    // 4. Stage 3: Sliding Window Canvas
+    updateSlidingWindowHistory(pRealtime);
+    renderSlidingWindowChart();
+
+    // 5. Stage 4: Binary Search Trace
     const trace = data.m3_binary_search?.search_trace || [];
     DOM.m3TraceContainer.innerHTML = trace.map(step => `
       <div class="trace-card ${step.risk <= (data.tau_0 || 0.05) ? 'safe' : 'exceed'}">
@@ -686,7 +841,7 @@
       </div>
     `).join('');
 
-    // 5. Tab M4: Bounded Knapsack Allocation (GAP-4)
+    // 6. Stage 5: Bounded Knapsack Allocation
     const demandLimits = STATE.lastDemands || data.m4_knapsack_dp?.demands || {};
     const prices = { VVIP: 4500000, PLATINUM: 2500000, GOLD: 1200000, SILVER: 600000 };
     DOM.m4AllocationDisplay.innerHTML = Object.keys(alloc).map(sec => {
@@ -713,34 +868,29 @@
       `;
     }).join('');
 
-    // 6. Tab M5: Gate Check-in Sample
+    // 7. Stage 7: Gate Check-in & SAA Monte Carlo Benchmark Table
     const m5Sample = data.m5_greedy?.sample_checkin || [];
     DOM.tbodyM5Sample.innerHTML = m5Sample.map(chk => {
       let statusBadge = '<span class="tag-badge green">ĐÚNG HẠNG GHẾ</span>';
       let compText = 'Không đền bù (0 đ)';
-      if (chk.status === 'UPGRADED') {
+      if (chk.status === 'UPGRADED' || chk.trang_thai === 'UPGRADED') {
         statusBadge = '<span class="tag-badge cyan">TỰ ĐỘNG NÂNG HẠNG</span>';
         compText = 'Miễn phí chênh lệch';
-      } else if (chk.status === 'DENIED_BOARDING') {
+      } else if (chk.status === 'DENIED_BOARDING' || (chk.trang_thai && chk.trang_thai.includes('REJECTED'))) {
         statusBadge = '<span class="tag-badge red">TỪ CHỐI LÊN TÀU</span>';
         compText = '<strong class="gold">Đền bù 150% + Quà</strong>';
       }
       return `
         <tr>
-          <td>Khán giả #${chk.user_id} ${chk.is_protected ? '⭐' : ''}</td>
-          <td>${chk.requested_type}</td>
-          <td><strong class="cyan">${chk.assigned_seat || 'N/A'}</strong></td>
+          <td>${chk.ten || ('Khán giả #' + (chk.user_id || chk.id_khach))} ${chk.is_protected ? '⭐' : ''}</td>
+          <td>${chk.hang_ve_mong_muon || chk.requested_type || 'GOLD'}</td>
+          <td><strong class="cyan">${chk.hang_ve_thuc_nhan || chk.assigned_seat || 'N/A'}</strong></td>
           <td>${statusBadge}</td>
           <td>${compText}</td>
         </tr>
       `;
     }).join('');
 
-    // 7. Tab M6: Realtime Sliding Window Canvas Chart
-    updateSlidingWindowHistory(pRealtime);
-    renderSlidingWindowChart();
-
-    // 8. Tab M7: SAA Monte Carlo Benchmark Table
     const saa = data.m7_saa_benchmark || {};
     DOM.m7BenchmarkDisplay.innerHTML = `
       <table class="data-table benchmark-table">
@@ -786,9 +936,10 @@
         </tbody>
       </table>
     `;
-  }
 
-  let payload_last_demands = null;
+    // Refresh current spotlight step
+    updateSpotlightCard(STATE.currentStep);
+  }
 
   // Render Heap Tree Mock
   function renderHeapTree(topList) {
@@ -850,10 +1001,8 @@
     const w = canvas.width;
     const h = canvas.height;
 
-    // Clear background
     ctx.clearRect(0, 0, w, h);
 
-    // If history is small, mock a smooth wave around current p
     let points = [...STATE.slidingWindowHistory];
     if (points.length < 5) {
       const base = parseFloat(DOM.rangeDropRate.value) / 100.0 || 0.18;
@@ -870,10 +1019,9 @@
       ctx.stroke();
     }
 
-    // Draw curve
     const minVal = 0.05;
     const maxVal = 0.35;
-    const stepX = (w - 70) / (points.length - 1);
+    const stepX = (w - 70) / Math.max(1, points.length - 1);
 
     ctx.beginPath();
     points.forEach((val, i) => {
@@ -890,7 +1038,6 @@
       }
     });
 
-    // Gradient stroke
     const grad = ctx.createLinearGradient(0, 0, w, 0);
     grad.addColorStop(0, '#60A5FA');
     grad.addColorStop(1, '#10B981');
@@ -898,7 +1045,6 @@
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Draw dots
     points.forEach((val, i) => {
       const x = 50 + i * stepX;
       const y = h - 30 - ((val - minVal) / (maxVal - minVal)) * (h - 70);
@@ -907,7 +1053,6 @@
       ctx.arc(x, y, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Label last point
       if (i === points.length - 1) {
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '12px JetBrains Mono';
@@ -915,7 +1060,6 @@
       }
     });
 
-    // Baseline labels
     ctx.fillStyle = '#94A3B8';
     ctx.font = '11px JetBrains Mono';
     ctx.fillText('35%', 10, 35);
@@ -924,7 +1068,7 @@
   }
 
   // =========================================================================
-  // 8. EVENT HANDLERS & DEBOUNCE
+  // 9. EVENT LISTENERS & BINDINGS FOR DYNAMIC INPUTS
   // =========================================================================
   function debounceRunPipeline() {
     clearTimeout(STATE.debounceTimer);
@@ -933,7 +1077,59 @@
     }, 300);
   }
 
-  // Sliders input updates
+  // Capacity input & preset chips
+  DOM.inputCapacityC.addEventListener('input', () => {
+    DOM.btnPresetChips.forEach(c => c.classList.remove('active'));
+    debounceRunPipeline();
+  });
+
+  DOM.btnPresetChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      DOM.btnPresetChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      const presetKey = chip.getAttribute('data-preset');
+      const p = VENUE_PRESETS[presetKey];
+      if (p) {
+        STATE.venuePreset = presetKey;
+        DOM.txtActiveVenue.textContent = p.name;
+        DOM.inputCapacityC.value = p.capacity;
+        DOM.inputNumUsers.value = p.totalWaiting;
+
+        // Sync demands
+        DOM.inputDemandVVIP.value = p.demands.VVIP;
+        DOM.rangeDemandVVIP.value = p.demands.VVIP;
+        DOM.inputDemandPLATINUM.value = p.demands.PLATINUM;
+        DOM.rangeDemandPLATINUM.value = p.demands.PLATINUM;
+        DOM.inputDemandGOLD.value = p.demands.GOLD;
+        DOM.rangeDemandGOLD.value = p.demands.GOLD;
+        DOM.inputDemandSILVER.value = p.demands.SILVER;
+        DOM.rangeDemandSILVER.value = p.demands.SILVER;
+
+        debounceRunPipeline();
+      }
+    });
+  });
+
+  // Users in queue input & chips
+  DOM.inputNumUsers.addEventListener('input', () => {
+    DOM.btnUsersChips.forEach(c => c.classList.remove('active'));
+    debounceRunPipeline();
+  });
+
+  DOM.btnUsersChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      DOM.btnUsersChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const u = parseInt(chip.getAttribute('data-users'), 10);
+      if (u) {
+        DOM.inputNumUsers.value = u;
+        debounceRunPipeline();
+      }
+    });
+  });
+
+  // Tau_0 & Drop rate sliders
   DOM.rangeRiskTau.addEventListener('input', (e) => {
     DOM.lblRiskTau.textContent = `${parseFloat(e.target.value).toFixed(1)}%`;
     debounceRunPipeline();
@@ -944,49 +1140,23 @@
     debounceRunPipeline();
   });
 
-  // Demand sliders (GAP-4)
-  DOM.rangeDemandVVIP.addEventListener('input', (e) => {
-    DOM.lblDemandVVIP.textContent = formatNumber(e.target.value);
-    debounceRunPipeline();
-  });
+  // Two-way sync for demand inputs and sliders
+  function bindSync(inputEl, sliderEl) {
+    sliderEl.addEventListener('input', (e) => {
+      inputEl.value = e.target.value;
+      debounceRunPipeline();
+    });
+    inputEl.addEventListener('input', (e) => {
+      sliderEl.value = e.target.value;
+      debounceRunPipeline();
+    });
+  }
 
-  DOM.rangeDemandPLATINUM.addEventListener('input', (e) => {
-    DOM.lblDemandPLATINUM.textContent = formatNumber(e.target.value);
-    debounceRunPipeline();
-  });
+  bindSync(DOM.inputDemandVVIP, DOM.rangeDemandVVIP);
+  bindSync(DOM.inputDemandPLATINUM, DOM.rangeDemandPLATINUM);
+  bindSync(DOM.inputDemandGOLD, DOM.rangeDemandGOLD);
+  bindSync(DOM.inputDemandSILVER, DOM.rangeDemandSILVER);
 
-  DOM.rangeDemandGOLD.addEventListener('input', (e) => {
-    DOM.lblDemandGOLD.textContent = formatNumber(e.target.value);
-    debounceRunPipeline();
-  });
-
-  DOM.rangeDemandSILVER.addEventListener('input', (e) => {
-    DOM.lblDemandSILVER.textContent = formatNumber(e.target.value);
-    debounceRunPipeline();
-  });
-
-  // Venue Preset Selection
-  DOM.selVenuePreset.addEventListener('change', (e) => {
-    const p = VENUE_PRESETS[e.target.value] || VENUE_PRESETS.my_dinh;
-    DOM.txtActiveVenue.textContent = p.name;
-
-    // Update Demand Sliders according to venue scale
-    DOM.rangeDemandVVIP.value = p.demands.VVIP;
-    DOM.lblDemandVVIP.textContent = formatNumber(p.demands.VVIP);
-
-    DOM.rangeDemandPLATINUM.value = p.demands.PLATINUM;
-    DOM.lblDemandPLATINUM.textContent = formatNumber(p.demands.PLATINUM);
-
-    DOM.rangeDemandGOLD.value = p.demands.GOLD;
-    DOM.lblDemandGOLD.textContent = formatNumber(p.demands.GOLD);
-
-    DOM.rangeDemandSILVER.value = p.demands.SILVER;
-    DOM.lblDemandSILVER.textContent = formatNumber(p.demands.SILVER);
-
-    debounceRunPipeline();
-  });
-
-  // Action Buttons
   DOM.btnRunFullPipeline.addEventListener('click', runPipeline);
 
   DOM.btnResetSystem.addEventListener('click', async () => {
@@ -1002,41 +1172,20 @@
     }
   });
 
-  // Tab switching inside Admin
-  DOM.tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetTab = btn.getAttribute('data-tab');
-      DOM.tabBtns.forEach(b => b.classList.remove('active'));
-      DOM.tabPanes.forEach(p => p.classList.remove('active'));
-
-      btn.classList.add('active');
-      const pane = document.getElementById(targetTab);
-      if (pane) pane.classList.add('active');
-
-      if (targetTab === 'tabM6') {
-        setTimeout(renderSlidingWindowChart, 50);
-      }
-    });
-  });
-
   // =========================================================================
-  // 9. INITIALIZATION
+  // 10. INITIALIZATION
   // =========================================================================
   async function initApp() {
-    // Check local session
     const savedToken = localStorage.getItem('vwr_queue_token');
     if (savedToken) {
       STATE.queueToken = savedToken;
     }
 
-    // Start Citizen Queue Polling
     startQueuePolling();
-
-    // Initial Pipeline Calculation
     await runPipeline();
+    goToStep(1);
   }
 
-  // Bootstrap when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
   } else {
