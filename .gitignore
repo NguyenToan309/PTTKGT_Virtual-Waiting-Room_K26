@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C/Rust or dynamic extensions
+*.dylib
+*.dll
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging & distribution
+dist/
+build/
+*.egg-info/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
