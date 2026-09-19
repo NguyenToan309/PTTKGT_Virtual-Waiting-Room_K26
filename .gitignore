@@ -19,9 +19,18 @@ dist/
 build/
 *.egg-info/
 
+# Office documents and reports
+*.docx
+*.xlsx
+*.xls
+
+# Agent configs
+.agents/
+
 # IDE and OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
 
