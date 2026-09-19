@@ -82,38 +82,38 @@ class TrangThaiHeThongDong:
         return self.so_rot / len(self.cua_so)
 
 
-he_thong = TrangThaiHeThongDong(5)
+if __name__ == "__main__":
+    he_thong = TrangThaiHeThongDong(5)
 
-he_thong.them_ve_tam_giu({
-    "id_ve": "V01",
-    "expiration_time": 100
-})
+    he_thong.them_ve_tam_giu({
+        "id_ve": "V01",
+        "expiration_time": 100
+    })
 
-he_thong.them_ve_tam_giu({
-    "id_ve": "V02",
-    "expiration_time": 150
-})
+    he_thong.them_ve_tam_giu({
+        "id_ve": "V02",
+        "expiration_time": 150
+    })
 
-he_thong.them_ve_tam_giu({
-    "id_ve": "V03",
-    "expiration_time": 120
-})
+    he_thong.them_ve_tam_giu({
+        "id_ve": "V03",
+        "expiration_time": 120
+    })
 
+    print("Danh sách vé:")
+    print(he_thong.heap_ve)
 
-print("Danh sách vé:")
-print(he_thong.heap_ve)
+    ve_het_han = he_thong.thu_hoi_ve_het_han(125)
 
-ve_het_han = he_thong.thu_hoi_ve_het_han(125)
+    print("\nVé hết hạn:")
+    print(ve_het_han)
 
-print("\nVé hết hạn:")
-print(ve_het_han)
+    he_thong.ghi_nhan_giao_dich(False)
+    he_thong.ghi_nhan_giao_dich(True)
+    he_thong.ghi_nhan_giao_dich(False)
+    he_thong.ghi_nhan_giao_dich(True)
+    he_thong.ghi_nhan_giao_dich(True)
 
-he_thong.ghi_nhan_giao_dich(False)
-he_thong.ghi_nhan_giao_dich(True)
-he_thong.ghi_nhan_giao_dich(False)
-he_thong.ghi_nhan_giao_dich(True)
-he_thong.ghi_nhan_giao_dich(True)
+    print("\nTỷ lệ rớt:")
+    print(he_thong.lay_ti_le_rot_o1())
 
-
-print("\nTỷ lệ rớt:")
-print(he_thong.lay_ti_le_rot_o1())
