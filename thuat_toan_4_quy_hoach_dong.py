@@ -18,6 +18,12 @@ def quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve):
         if not all(x in hang_ve for x in ["name", "price", "demand_limit"]):
             raise ValueError("Thieu thong tin hang ve.")
 
+        if not isinstance(hang_ve["price"], (int, float)):
+            raise ValueError("price phai la so.")
+
+        if not isinstance(hang_ve["demand_limit"], int):
+            raise ValueError("demand_limit phai la so nguyen.")
+
         if hang_ve["price"] < 0 or hang_ve["demand_limit"] < 0:
             raise ValueError("price va demand_limit khong duoc am.")
 
@@ -35,7 +41,7 @@ def quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve):
     # =====================================================
     # 3. BOUNDED KNAPSACK DP
     # =====================================================
-
+    
     for i in range(1, N + 1):
         price = danh_sach_hang_ve[i - 1]["price"]
         limit = danh_sach_hang_ve[i - 1]["demand_limit"]
@@ -72,6 +78,7 @@ def quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve):
     # 4. TÌM DOANH THU TỐI ĐA
     # =====================================================
     best_j = 0
+
     for j in range(1, M_star + 1):
         if dp[N][j] > dp[N][best_j]:
             best_j = j
@@ -81,6 +88,7 @@ def quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve):
     # =====================================================
     allocation = {}
     j = best_j
+
     for i in range(N, 0, -1):
         name = danh_sach_hang_ve[i - 1]["name"]
         selected = trace[i][j]
@@ -97,6 +105,7 @@ def quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve):
 # TÍNH DOANH THU
 # =====================================================
 def tinh_doanh_thu(allocation, danh_sach_hang_ve):
+
     gia = {
         hang_ve["name"]: hang_ve["price"]
         for hang_ve in danh_sach_hang_ve
@@ -114,17 +123,15 @@ def kiem_tra_allocation(allocation, M_star, danh_sach_hang_ve):
 
     if sum(allocation.values()) > M_star:
         return False
-
+    
     for hang_ve in danh_sach_hang_ve:
         name = hang_ve["name"]
         quantity = allocation.get(name, 0)
-
         if quantity < 0:
             return False
-
+        
         if quantity > hang_ve["demand_limit"]:
             return False
-
     return True
 
 # =====================================================
@@ -170,47 +177,33 @@ def unit_test():
     ]
 
     for i, (M_star, hang_ve, expected) in enumerate(tests, 1):
-        result = quy_hoach_dong_phan_bo_ve(
-            M_star, hang_ve
-        )
-
+        result = quy_hoach_dong_phan_bo_ve(M_star, hang_ve)
         assert result == expected
         assert kiem_tra_allocation(
             result, M_star, hang_ve
         )
 
         print(f"TEST {i} PASSED")
-        
+
 # =====================================================
 # DEMO
 # =====================================================
 if __name__ == "__main__":
-
     unit_test()
-
     M_star = 100
-
     danh_sach_hang_ve = [
         {"name": "VIP", "price": 1000000, "demand_limit": 30},
         {"name": "Standard", "price": 500000, "demand_limit": 100},
         {"name": "Economy", "price": 200000, "demand_limit": 200}
     ]
 
-    allocation = quy_hoach_dong_phan_bo_ve(
-        M_star, danh_sach_hang_ve
-    )
-
+    allocation = quy_hoach_dong_phan_bo_ve(M_star, danh_sach_hang_ve)
     print("\nM_star:", M_star)
     print("Phan bo:", allocation)
     print("Tong ve:", sum(allocation.values()))
 
-    doanh_thu = tinh_doanh_thu(
-        allocation, danh_sach_hang_ve
-    )
+    doanh_thu = tinh_doanh_thu(allocation, danh_sach_hang_ve)
 
     print("Doanh thu:", f"{doanh_thu:,} VND")
-    
-    print(
-        "Hop le:",
-        kiem_tra_allocation(allocation,M_star,danh_sach_hang_ve)
-    )
+
+    print("Hop le:", kiem_tra_allocation(allocation,M_star,danh_sach_hang_ve))
