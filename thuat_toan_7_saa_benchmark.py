@@ -52,51 +52,62 @@ def _dieu_phoi_m3_tim_nguong(capacity_C: int, drop_rate_p: float, tau_0: float) 
     return int(math.ceil(capacity_C / safe_rate))
 
 
-def _dieu_phoi_m4_phan_bo(m_star: int, ticket_classes: List[Dict[str, Any]]) -> Dict[str, int]:
+def _dieu_phoi_m4_phan_bo(m_star: int, ticket_classes: List[Dict[str, Any]], is_baseline: bool = False) -> Dict[str, int]:
     """Dieu phoi phan bo ve qua M4 Knapsack voi fallback tham lam. O(N * m_star)."""
     if not ticket_classes or m_star <= 0:
         return {tc.get("name", "Unknown"): 0 for tc in (ticket_classes or [])}
 
-    if quy_hoach_dong_phan_bo_ve is not None:
-        # Thu goi theo signature list[dict]
-        try:
-            alloc = quy_hoach_dong_phan_bo_ve(m_star, ticket_classes)
-            if isinstance(alloc, dict) and alloc:
-                return alloc
-        except Exception:
-            pass
-        # Thu goi theo signature (m_star, demands, prices)
-        try:
-            demands = {tc["name"]: tc["demand_limit"] for tc in ticket_classes}
-            prices = {tc["name"]: tc["price"] for tc in ticket_classes}
-            alloc = quy_hoach_dong_phan_bo_ve(m_star, demands, prices)
-            if isinstance(alloc, dict) and alloc:
-                return alloc
-        except Exception:
-            pass
-
-    # Fallback Selection Sort thu cong (tuyet doi khong dung sorted)
-    classes_copy = list(ticket_classes)
-    for i in range(len(classes_copy)):
-        max_idx = i
-        for j in range(i + 1, len(classes_copy)):
-            if classes_copy[j].get("price", 0.0) > classes_copy[max_idx].get("price", 0.0):
-                max_idx = j
-        classes_copy[i], classes_copy[max_idx] = classes_copy[max_idx], classes_copy[i]
-
-    # Phan bo tham lam theo gia giam dan
     alloc: Dict[str, int] = {}
     remain = m_star
-    for tc in classes_copy:
-        taken = min(remain, tc.get("demand_limit", 0))
-        alloc[tc.get("name", "Standard")] = taken
-        remain -= taken
+
+    # 1. Cấp phát ưu tiên 100% quota cho phân khu Tri Ân chính sách (VVIP - Mẹ VNAH, Thương binh, Yếu nhân)
+    for tc in ticket_classes:
+        if tc.get("price", 0.0) == 0.0 or tc.get("protected_pool", 0) > 0:
+            quota = tc.get("protected_pool") or tc.get("physical_cap") or tc.get("demand_limit", 0)
+            taken = min(remain, quota)
+            alloc[tc.get("name")] = taken
+            remain -= taken
+
+    # 2. Phân bổ Bounded Knapsack cho các phân khu thương mại (có thu phí)
+    comm_classes = [tc for tc in ticket_classes if tc.get("name") not in alloc]
+    if comm_classes and remain > 0:
+        if not is_baseline and quy_hoach_dong_phan_bo_ve is not None:
+            try:
+                comm_alloc = quy_hoach_dong_phan_bo_ve(remain, comm_classes)
+                if isinstance(comm_alloc, dict) and comm_alloc:
+                    alloc.update(comm_alloc)
+                    return alloc
+            except Exception:
+                pass
+
+        # Fallback Selection Sort theo giá giảm dần
+        classes_copy = list(comm_classes)
+        for i in range(len(classes_copy)):
+            max_idx = i
+            for j in range(i + 1, len(classes_copy)):
+                if classes_copy[j].get("price", 0.0) > classes_copy[max_idx].get("price", 0.0):
+                    max_idx = j
+            classes_copy[i], classes_copy[max_idx] = classes_copy[max_idx], classes_copy[i]
+
+        for tc in classes_copy:
+            lim = tc.get("physical_cap", tc.get("demand_limit", 0)) if is_baseline else tc.get("demand_limit", 0)
+            taken = min(remain, lim)
+            alloc[tc.get("name")] = taken
+            remain -= taken
+
     return alloc
 
 
 def _mo_phong_so_khach_den(m_sold: int, drop_rate_p: float, rng: random.Random) -> int:
     """Mo phong so khach den theo Bien ngau nhien Nhi thuc K ~ Binomial(M, 1 - p). O(M)."""
     show_prob = 1.0 - drop_rate_p
+    if m_sold > 500:
+        # Xap xi phan phoi Chuan (De Moivre - Laplace / CLT) cho M lon, chay tuc thi O(1)
+        mean = m_sold * show_prob
+        variance = m_sold * show_prob * drop_rate_p
+        std = math.sqrt(max(0.1, variance))
+        arrivals = int(round(rng.gauss(mean, std)))
+        return max(0, min(m_sold, arrivals))
     arrivals = 0
     for _ in range(m_sold):
         if rng.random() < show_prob:
@@ -154,9 +165,10 @@ def chay_danh_gia_saa(
         {"name": "Standard", "price": 500000.0, "demand_limit": 100}
     ]
 
-    # Don gia boi thuong Denied Boarding (150% gia ve trung binh)
-    total_demand = sum(c.get("demand_limit", 0) for c in classes) or 1
-    weighted_price = sum(c.get("price", 0.0) * c.get("demand_limit", 0) for c in classes) / total_demand
+    # Don gia boi thuong Denied Boarding (150% gia ve thuong mai trung binh)
+    comm_classes = [c for c in classes if c.get("price", 0.0) > 0]
+    total_demand = sum(c.get("demand_limit", 0) for c in comm_classes) or 1
+    weighted_price = sum(c.get("price", 0.0) * c.get("demand_limit", 0) for c in comm_classes) / total_demand
     comp_per_db = weighted_price * 1.5
 
     # Sinh tap mau S kich ban va khoi tao bo sinh so
@@ -168,8 +180,8 @@ def chay_danh_gia_saa(
     m_star_saa = int(round(sum(m_stars) / len(m_stars)))
 
     # Phan bo quota theo M4
-    alloc_prop = _dieu_phoi_m4_phan_bo(m_star_saa, classes)
-    alloc_base = _dieu_phoi_m4_phan_bo(capacity_C, classes)
+    alloc_prop = _dieu_phoi_m4_phan_bo(m_star_saa, classes, is_baseline=False)
+    alloc_base = _dieu_phoi_m4_phan_bo(capacity_C, classes, is_baseline=True)
     gross_prop = sum(alloc_prop.get(c["name"], 0) * c.get("price", 0.0) for c in classes)
     gross_base = sum(alloc_base.get(c["name"], 0) * c.get("price", 0.0) for c in classes)
 
@@ -181,9 +193,12 @@ def chay_danh_gia_saa(
     base_empties: List[int] = []
     sample_rows: List[Dict[str, Any]] = []
 
+    actual_sold_prop = sum(alloc_prop.get(c["name"], 0) for c in classes)
+    actual_sold_base = sum(alloc_base.get(c["name"], 0) for c in classes)
+
     for idx, p_val in enumerate(scenarios_p):
-        # Proposed: ban m_star_saa ve
-        arr_prop = _mo_phong_so_khach_den(m_star_saa, p_val, rng)
+        # Proposed: ban so ve thuc te phan bo duoc theo M4 Knapsack
+        arr_prop = _mo_phong_so_khach_den(actual_sold_prop, p_val, rng)
         db_cnt = max(0, arr_prop - capacity_C)
         empty_prop = max(0, capacity_C - min(arr_prop, capacity_C))
         net_prop = gross_prop - (db_cnt * comp_per_db)
@@ -192,22 +207,31 @@ def chay_danh_gia_saa(
         prop_dbs.append(db_cnt)
         prop_empties.append(empty_prop)
 
-        # Baseline: ban dung C ve (khong ban lo, 0 DB)
-        arr_base = _mo_phong_so_khach_den(capacity_C, p_val, rng)
+        # Baseline: ban so ve thuc te phan bo duoc theo Baseline Knapsack
+        arr_base = _mo_phong_so_khach_den(actual_sold_base, p_val, rng)
         empty_base = max(0, capacity_C - min(arr_base, capacity_C))
 
         base_nets.append(gross_base)
         base_empties.append(empty_base)
 
-        if idx < 5:
+        # Luu toan bo kịch ban (toi da 100 kich ban) chi tiet de UI hien thi truc quan
+        if idx < 100:
             sample_rows.append({
                 "scenario": idx + 1,
-                "p": p_val,
-                "m_star": m_stars[idx],
-                "proposed_net": net_prop,
-                "baseline_net": gross_base,
-                "db_count": db_cnt,
+                "p": round(p_val, 4),
+                "drop_rate_pct": round(p_val * 100, 2),
+                "capacity_C": capacity_C,
+                "m_star": m_star_saa,
+                "arrivals": arr_prop,
+                "occupied_seats": capacity_C - empty_prop,
+                "empty_seats": empty_prop,
                 "empty_prop": empty_prop,
+                "db_count": db_cnt,
+                "proposed_net": net_prop,
+                "gross_revenue": gross_prop,
+                "comp_cost": db_cnt * comp_per_db,
+                "baseline_net": gross_base,
+                "profit_gain": net_prop - gross_base,
                 "empty_base": empty_base,
             })
 

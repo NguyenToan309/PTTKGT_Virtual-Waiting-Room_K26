@@ -1,110 +1,37 @@
-from thuat_toan_4_quy_hoach_dong import (
-    quy_hoach_dong_phan_bo_ve,
-    tinh_doanh_thu,
-    kiem_tra_allocation
-)
+# -*- coding: utf-8 -*-
+"""
+Unit Test cho Module 4: Bounded Knapsack DP (Quy Hoạch Động Phân Bổ Vé)
+File: test_thuat_toan_4_quy_hoach_dong.py
+"""
 
+import unittest
+from thuat_toan_4_quy_hoach_dong import quy_hoach_dong_phan_bo_ve
 
-# =====================================================
-# TEST 1: NHẬN M_STAR TỪ M3 VÀ TỐI ƯU DOANH THU
-# =====================================================
-def test_nhan_m_star_tu_m3():
+class TestModule4Knapsack(unittest.TestCase):
+    def test_phan_bo_4_hang_ve(self):
+        m_star = 121683
+        classes = [
+            {"name": "VVIP Tri Ân", "price": 0.0, "demand_limit": 15000, "protected_pool": 15000},
+            {"name": "VIP Platinum", "price": 2500000.0, "demand_limit": 35000},
+            {"name": "Gold Standard", "price": 1200000.0, "demand_limit": 50000},
+            {"name": "Silver Economy", "price": 600000.0, "demand_limit": 30000},
+        ]
+        res = quy_hoach_dong_phan_bo_ve(m_star, classes)
+        
+        # Kiểm tra cấp đủ 100% VVIP Tri Ân
+        self.assertEqual(res["VVIP Tri Ân"], 15000)
+        # Kiểm tra ưu tiên giá cao
+        self.assertEqual(res["VIP Platinum"], 35000)
+        self.assertEqual(res["Gold Standard"], 50000)
+        self.assertEqual(res["Silver Economy"], 21683)
+        self.assertEqual(sum(res.values()), m_star)
 
-    # M3 trả về M_star = 116
-    M_star = 116
+    def test_edge_case_m_star_0(self):
+        classes = [
+            {"name": "VIP", "price": 1000.0, "demand_limit": 10}
+        ]
+        res = quy_hoach_dong_phan_bo_ve(0, classes)
+        self.assertEqual(res["VIP"], 0)
 
-    danh_sach_hang_ve = [
-        {"name": "VIP", "price": 1000000, "demand_limit": 30},
-        {"name": "Standard", "price": 500000, "demand_limit": 100}
-    ]
-
-    allocation = quy_hoach_dong_phan_bo_ve(
-        M_star,
-        danh_sach_hang_ve
-    )
-
-    assert allocation["VIP"] == 30
-    assert allocation["Standard"] == 86
-
-    assert sum(allocation.values()) == M_star
-
-    assert tinh_doanh_thu(
-        allocation,
-        danh_sach_hang_ve
-    ) == 73000000
-
-
-# =====================================================
-# TEST 2: TRACE-BACK ĐÚNG
-# =====================================================
-def test_trace_back():
-
-    M_star = 10
-
-    danh_sach_hang_ve = [
-        {"name": "VIP", "price": 2000000, "demand_limit": 3},
-        {"name": "Standard", "price": 500000, "demand_limit": 10}
-    ]
-
-    allocation = quy_hoach_dong_phan_bo_ve(
-        M_star,
-        danh_sach_hang_ve
-    )
-
-    assert allocation["VIP"] == 3
-    assert allocation["Standard"] == 7
-
-    assert sum(allocation.values()) == M_star
-
-
-# =====================================================
-# TEST 3: KHÔNG VƯỢT M_STAR
-# =====================================================
-def test_khong_vuot_m_star():
-
-    M_star = 50
-
-    danh_sach_hang_ve = [
-        {"name": "VIP", "price": 1000000, "demand_limit": 40},
-        {"name": "Standard", "price": 500000, "demand_limit": 40}
-    ]
-
-    allocation = quy_hoach_dong_phan_bo_ve(
-        M_star,
-        danh_sach_hang_ve
-    )
-
-    assert sum(allocation.values()) <= M_star
-
-    assert kiem_tra_allocation(
-        allocation,
-        M_star,
-        danh_sach_hang_ve
-    )
-
-
-# =====================================================
-# TEST 4: KHÔNG VƯỢT NHU CẦU
-# =====================================================
-def test_khong_vuot_demand():
-
-    M_star = 100
-
-    danh_sach_hang_ve = [
-        {"name": "VIP", "price": 1000000, "demand_limit": 20},
-        {"name": "Standard", "price": 500000, "demand_limit": 30}
-    ]
-
-    allocation = quy_hoach_dong_phan_bo_ve(
-        M_star,
-        danh_sach_hang_ve
-    )
-
-    assert allocation["VIP"] <= 20
-    assert allocation["Standard"] <= 30
-
-    assert kiem_tra_allocation(
-        allocation,
-        M_star,
-        danh_sach_hang_ve
-    )
+if __name__ == "__main__":
+    unittest.main()

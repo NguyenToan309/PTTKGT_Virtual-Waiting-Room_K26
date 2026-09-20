@@ -16,13 +16,22 @@ def xu_ly_xung_dot_tham_lam(
     quota_con_lai = allocation.copy()
     so_ve_da_ban = 0
     danh_sach_ket_qua = []
-    thu_tu_hang_ve = ["VIP", "Standard", "Economy"]
+
+    # Nhận diện thứ tự phân hạng vé động theo cấu hình allocation
+    alloc_keys = list(allocation.keys())
+    if any("Tri Ân" in k or "Platinum" in k or "Gold" in k or "Silver" in k for k in alloc_keys):
+        thu_tu_hang_ve = ["VVIP Tri Ân", "VIP Platinum", "Gold Standard", "Silver Economy"]
+    elif any(k in ["VVIP", "PLATINUM", "GOLD", "SILVER"] for k in alloc_keys):
+        thu_tu_hang_ve = ["VVIP", "PLATINUM", "GOLD", "SILVER"]
+    else:
+        thu_tu_hang_ve = ["VIP", "Standard", "Economy"]
 
     for khach in danh_sach_uu_tien:
         id_khach = khach.get("id_khach") or khach.get("user_id", "UNKNOWN")
         ten = khach.get("ten", "Khách hàng")
-        hang_ve_mong_muon = khach.get("hang_ve_mong_muon", "Standard")
-        diem_loyalty = khach.get("diem_loyalty", 0)
+        hang_ve_mong_muon = khach.get("hang_ve_mong_muon") or khach.get("ticket_type", "Standard")
+        diem_loyalty = khach.get("diem_loyalty") or khach.get("loyalty_score", 0)
+        is_protected = khach.get("is_protected", False) or ("Tri Ân" in str(hang_ve_mong_muon)) or (hang_ve_mong_muon == "VVIP")
 
         ket_qua = {
             "id_khach": id_khach,
@@ -32,8 +41,22 @@ def xu_ly_xung_dot_tham_lam(
             "hang_ve_thuc_nhan": None,
             "trang_thai": "PENDING",
             "ghi_chu": "",
-            "boi_thuong": False
+            "boi_thuong": False,
+            "is_protected": is_protected
         }
+
+        # CAM KẾT ĐẠO ĐỨC TỐI THƯỢNG: Khách chính sách tri ân (Mẹ VNAH, Thương binh, Yếu nhân)
+        # luôn được bảo vệ 100%, tuyệt đối không bao giờ bị từ chối phục vụ (0.00% Denied Boarding)
+        if is_protected:
+            target_seat = hang_ve_mong_muon if hang_ve_mong_muon in quota_con_lai else thu_tu_hang_ve[0]
+            if quota_con_lai.get(target_seat, 0) > 0:
+                quota_con_lai[target_seat] -= 1
+            so_ve_da_ban += 1
+            ket_qua["hang_ve_thuc_nhan"] = target_seat
+            ket_qua["trang_thai"] = "SUCCESS"
+            ket_qua["ghi_chu"] = "Bảo vệ tuyệt đối 100% diện chính sách tri ân (Miễn phí 0 đ)"
+            danh_sach_ket_qua.append(ket_qua)
+            continue
 
         if so_ve_da_ban >= suc_chua_thuc:
             ket_qua["trang_thai"] = "REJECTED_FULL"
@@ -60,6 +83,9 @@ def xu_ly_xung_dot_tham_lam(
 
         for i in range(idx_hien_tai - 1, -1, -1):
             hang_cao_hon = thu_tu_hang_ve[i]
+            # Không tự động nâng khách phổ thông vào khoang VVIP Tri Ân bảo vệ riêng
+            if "Tri Ân" in hang_cao_hon or hang_cao_hon == "VVIP":
+                continue
             if quota_con_lai.get(hang_cao_hon, 0) > 0:
                 quota_con_lai[hang_cao_hon] -= 1
                 so_ve_da_ban += 1
@@ -98,7 +124,7 @@ def unit_test_m5():
         suc_chua_thuc=suc_chua_thuc_C
     )
 
-    print("\n--- KẾT QUẢ XỬ LÝ GIAO DỊCH (M5) ---")
+    print("\n--- KẾT QUẢ XỬ LÝ GIAO DỊCH (M5 - Baseline Test) ---")
     for item in ket_qua:
         print(f"Khách: {item['ten']} ({item['id_khach']}) | Trạng thái: {item['trang_thai']} | Hạng nhận: {item['hang_ve_thuc_nhan']} | Ghi chú: {item['ghi_chu']}")
 
@@ -107,7 +133,30 @@ def unit_test_m5():
     assert ket_qua[2]["trang_thai"] == "REJECTED_FULL"
     assert ket_qua[3]["trang_thai"] == "REJECTED_FULL"
 
-    print("\n[SUCCESS] Unit test đã vượt qua toàn bộ assertions thành công!")
+    print("\n[SUCCESS] Unit test 1 (3 hạng) đã vượt qua toàn bộ assertions thành công!")
+
+    # Test 2: Thử nghiệm với 4 hạng vé có khách chính sách tri ân
+    ds_4_hang = [
+        {"id_khach": "TRIAN_01", "ten": "Mẹ VNAH Nguyễn Thị Thứ", "diem_loyalty": 100, "hang_ve_mong_muon": "VVIP Tri Ân", "is_protected": True},
+        {"id_khach": "COM_01", "ten": "Khách Platinum", "diem_loyalty": 50, "hang_ve_mong_muon": "VIP Platinum"},
+        {"id_khach": "COM_02", "ten": "Khách Gold 1", "diem_loyalty": 40, "hang_ve_mong_muon": "Gold Standard"},
+        {"id_khach": "COM_03", "ten": "Khách Gold 2", "diem_loyalty": 35, "hang_ve_mong_muon": "Gold Standard"},
+        {"id_khach": "COM_04", "ten": "Khách Silver quá tải", "diem_loyalty": 10, "hang_ve_mong_muon": "Silver Economy"},
+    ]
+    alloc_4 = {"VVIP Tri Ân": 1, "VIP Platinum": 2, "Gold Standard": 1, "Silver Economy": 0}
+    C_demo = 3
+
+    kq_4 = xu_ly_xung_dot_tham_lam(ds_4_hang, alloc_4, C_demo)
+    print("\n--- KẾT QUẢ XỬ LÝ GIAO DỊCH 4 HẠNG VÉ (M5) ---")
+    for item in kq_4:
+        print(f"Khách: {item['ten']} | Trạng thái: {item['trang_thai']} | Nhận: {item['hang_ve_thuc_nhan']} | Ghi chú: {item['ghi_chu']}")
+
+    assert kq_4[0]["trang_thai"] == "SUCCESS"  # Mẹ VNAH được bảo vệ 100%
+    assert kq_4[1]["trang_thai"] == "SUCCESS"  # Platinum đúng hạng
+    assert kq_4[2]["trang_thai"] == "SUCCESS"  # Gold 1 đúng hạng
+    assert kq_4[3]["trang_thai"] == "REJECTED_FULL" # Gold 2 chạm trần C=3
+    assert kq_4[4]["trang_thai"] == "REJECTED_FULL" # Silver chạm trần C=3
+    print("\n[SUCCESS] Unit test 2 (4 hạng chuẩn + Cam kết đạo đức bảo vệ Mẹ VNAH) PASSED 100%!")
 
 
 if __name__ == "__main__":

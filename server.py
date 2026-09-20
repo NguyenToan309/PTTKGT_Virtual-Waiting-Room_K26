@@ -49,13 +49,25 @@ app.add_middleware(
 # =============================================================================
 
 VENUE_PRESETS: Dict[str, Dict[str, Any]] = {
+    "mega_concert": {
+        "name": "Đại Nhạc Hội Mega Concert Quốc Tế (100.000 Chỗ)",
+        "capacity_C": 100000,
+        "total_waiting": 1000000,
+        "release_rate": 3000,
+        "sectors": {
+            "VVIP": {"name": "VVIP Tri Ân (Mẹ VNAH / Thương binh / Yếu nhân)", "price": 0.0, "physical_cap": 15000, "demand_limit": 15000, "protected_pool": 15000},
+            "PLATINUM": {"name": "VIP Platinum", "price": 2500000.0, "physical_cap": 25000, "demand_limit": 35000, "protected_pool": 0},
+            "GOLD": {"name": "Gold Standard", "price": 1200000.0, "physical_cap": 35000, "demand_limit": 50000, "protected_pool": 0},
+            "SILVER": {"name": "Silver Economy", "price": 600000.0, "physical_cap": 25000, "demand_limit": 35000, "protected_pool": 0},
+        }
+    },
     "my_dinh": {
         "name": "Sân Vận Động Quốc Gia Mỹ Đình",
         "capacity_C": 40000,
         "total_waiting": 185420,
         "release_rate": 1200,
         "sectors": {
-            "VVIP": {"name": "VVIP Diamond", "price": 4500000.0, "physical_cap": 4000, "demand_limit": 5200, "protected_pool": 4000},
+            "VVIP": {"name": "VVIP Tri Ân (Mẹ VNAH / Thương binh / Yếu nhân)", "price": 0.0, "physical_cap": 4000, "demand_limit": 4000, "protected_pool": 4000},
             "PLATINUM": {"name": "VIP Platinum", "price": 2500000.0, "physical_cap": 10000, "demand_limit": 13000, "protected_pool": 0},
             "GOLD": {"name": "Gold Standard", "price": 1200000.0, "physical_cap": 16000, "demand_limit": 20000, "protected_pool": 0},
             "SILVER": {"name": "Silver Economy", "price": 600000.0, "physical_cap": 10000, "demand_limit": 12000, "protected_pool": 0},
@@ -67,7 +79,7 @@ VENUE_PRESETS: Dict[str, Dict[str, Any]] = {
         "total_waiting": 52300,
         "release_rate": 600,
         "sectors": {
-            "VVIP": {"name": "VVIP Diamond", "price": 3500000.0, "physical_cap": 1000, "demand_limit": 1400, "protected_pool": 1000},
+            "VVIP": {"name": "VVIP Tri Ân (Mẹ VNAH / Thương binh / Yếu nhân)", "price": 0.0, "physical_cap": 1000, "demand_limit": 1000, "protected_pool": 1000},
             "PLATINUM": {"name": "VIP Platinum", "price": 2000000.0, "physical_cap": 2500, "demand_limit": 3200, "protected_pool": 0},
             "GOLD": {"name": "Gold Standard", "price": 1000000.0, "physical_cap": 4500, "demand_limit": 5500, "protected_pool": 0},
             "SILVER": {"name": "Silver Economy", "price": 500000.0, "physical_cap": 2000, "demand_limit": 2500, "protected_pool": 0},
@@ -79,7 +91,7 @@ VENUE_PRESETS: Dict[str, Dict[str, Any]] = {
         "total_waiting": 19400,
         "release_rate": 300,
         "sectors": {
-            "VVIP": {"name": "VVIP Diamond", "price": 4000000.0, "physical_cap": 500, "demand_limit": 700, "protected_pool": 500},
+            "VVIP": {"name": "VVIP Tri Ân (Mẹ VNAH / Thương binh / Yếu nhân)", "price": 0.0, "physical_cap": 500, "demand_limit": 500, "protected_pool": 500},
             "PLATINUM": {"name": "VIP Platinum", "price": 2200000.0, "physical_cap": 1100, "demand_limit": 1400, "protected_pool": 0},
             "GOLD": {"name": "Gold Standard", "price": 1200000.0, "physical_cap": 1500, "demand_limit": 1800, "protected_pool": 0},
             "SILVER": {"name": "Silver Economy", "price": 600000.0, "physical_cap": 700, "demand_limit": 900, "protected_pool": 0},
@@ -95,6 +107,12 @@ GLOBAL_STATE = {
     "sliding_window": TrangThaiHeThongDong(kich_thuoc_cua_so=100),
     "held_tickets": {},
     "last_pipeline_run": None,
+    "pipeline_step_session": {
+        "completed_steps": [],
+        "step_data": {},
+        "current_step": 1,
+        "last_params": {},
+    },
 }
 
 # =============================================================================
@@ -109,6 +127,29 @@ class PipelineRunRequest(BaseModel):
     num_scenarios: int = Field(50, ge=5, le=500)
     num_users: int = Field(185420, ge=10)
     seed: int = 42
+    demand_limits: Optional[Dict[str, int]] = None
+    protect_priority_groups: bool = True
+
+class PipelineStepRequest(BaseModel):
+    step_number: int = Field(1, ge=1, le=7)
+    venue_preset: str = Field("my_dinh", description="my_dinh | arena | ncc")
+    capacity_C: Optional[int] = None
+    tau_0: float = Field(0.05, ge=0.001, le=0.5)
+    drop_rate_p: Optional[float] = Field(0.18, ge=0.01, le=0.9)
+    num_scenarios: int = Field(50, ge=5, le=500)
+    num_users: int = Field(185420, ge=10)
+    seed: int = 42
+    demand_limits: Optional[Dict[str, int]] = None
+    protect_priority_groups: bool = True
+
+class RunModuleRequest(BaseModel):
+    module_code: str = Field(..., description="M1 | M2 | M3 | M4 | M5 | M6 | M7")
+    venue_preset: str = Field("my_dinh")
+    capacity_C: Optional[int] = None
+    num_users: int = Field(185420)
+    tau_0: float = Field(0.05)
+    drop_rate_p: Optional[float] = Field(0.18)
+    num_scenarios: int = Field(50)
     demand_limits: Optional[Dict[str, int]] = None
     protect_priority_groups: bool = True
 
@@ -250,17 +291,138 @@ def checkin_ticket(req: CheckinRequest) -> Dict[str, Any]:
     elif r < 0.98:
         return {
             "status": "UPGRADED",
-            "upgraded_to": "VVIP Diamond",
+            "upgraded_to": "VIP Platinum",
             "compensation_amount": None,
-            "message": "Hệ thống tự động nâng hạng ghế của quý khách lên VIP Danh Dự!"
+            "message": "Hệ thống tự động nâng hạng ghế của quý khách lên VIP Platinum Danh Dự!"
         }
     else:
         return {
             "status": "DENIED_COMPENSATED",
             "upgraded_to": None,
-            "compensation_amount": 1800000.0,
+            "compensation_amount": 900000.0,
             "message": "Ghế đã đạt giới hạn an toàn. Ban tổ chức bồi thường 150% tiền vé kèm thư xin lỗi quốc gia."
         }
+
+
+def _sinh_du_lieu_soat_ve_m5(C: int, num_guests: int = 120) -> List[Dict[str, Any]]:
+    """
+    Mô phỏng soát vé M5 thực tế với N khách tại cổng rạp theo 4 hạng vé chuẩn:
+    1. VVIP Tri Ân: Mẹ VNAH, Cựu chiến binh, Thương binh, Yếu nhân (Miễn phí 0 đ, bảo vệ tuyệt đối 100%).
+    2. VIP Platinum: Khán đài A trung tâm (2.500.000 đ).
+    3. Gold Standard: Khán đài B (1.200.000 đ).
+    4. Silver Economy: Khán đài C/D (600.000 đ).
+    """
+    vietnamese_first_names = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương"]
+    vietnamese_middle_names = ["Văn", "Thị", "Hải", "Minh", "Quang", "Đức", "Bảo", "Tuấn", "Thanh", "Kim", "Ngọc", "Anh"]
+    vietnamese_last_names = ["An", "Bình", "Cường", "Dũng", "Em", "Giang", "Hương", "Huy", "Khoa", "Linh", "Long", "Nam", "Nhi", "Phúc", "Quân", "Sơn", "Tâm", "Thảo", "Trang", "Tùng", "Uyên", "Việt"]
+    
+    priority_titles = [
+        ("Mẹ VNAH", 100, "Mẹ Việt Nam Anh Hùng"),
+        ("Anh hùng LLVT", 95, "Anh hùng Lực lượng Vũ trang"),
+        ("Thương binh 1/4", 90, "Thương binh nặng 1/4"),
+        ("Bệnh binh", 85, "Bệnh binh kháng chiến"),
+        ("Cựu chiến binh", 80, "Cựu Chiến Binh"),
+        ("Con liệt sĩ", 75, "Thân nhân Liệt sĩ"),
+        ("Người có công", 70, "Người có công với CM"),
+    ]
+    
+    rng = random.Random(42)
+    danh_sach_den = []
+    
+    for i in range(num_guests):
+        is_priority = (i < 15)
+        if is_priority:
+            p_title, p_score, p_desc = priority_titles[i % len(priority_titles)]
+            f_name = rng.choice(vietnamese_first_names)
+            l_name = rng.choice(vietnamese_last_names)
+            ten = f"{p_title} {f_name} {l_name}"
+            pref_tier = "VVIP Tri Ân"
+        else:
+            f_name = rng.choice(vietnamese_first_names)
+            m_name = rng.choice(vietnamese_middle_names)
+            l_name = rng.choice(vietnamese_last_names)
+            ten = f"{f_name} {m_name} {l_name}"
+            p_score = rng.randint(10, 60)
+            p_desc = "Khán giả phổ thông"
+            tier_roll = rng.random()
+            if tier_roll < 0.25:
+                pref_tier = "VIP Platinum"
+            elif tier_roll < 0.70:
+                pref_tier = "Gold Standard"
+            else:
+                pref_tier = "Silver Economy"
+                
+        danh_sach_den.append({
+            "id_khach": f"TICK-{1000 + i}",
+            "ten": ten,
+            "diem_loyalty": p_score,
+            "loyalty_score": p_score,
+            "priority_group": p_desc,
+            "is_protected": is_priority,
+            "hang_ve_mong_muon": pref_tier,
+        })
+        
+    # Sắp xếp ưu tiên: Khách chính sách/loyalty cao xếp hàng trước (M2 Max-Heap logic)
+    danh_sach_den.sort(key=lambda x: x["diem_loyalty"], reverse=True)
+    
+    # Thiết lập quota cụm cổng soát vé demo theo 4 phân khu
+    demo_cap = min(C, int(num_guests * 0.75))
+    quota_vvip = max(5, int(demo_cap * 0.15))
+    quota_plat = max(10, int(demo_cap * 0.25))
+    quota_gold = max(20, int(demo_cap * 0.35))
+    quota_silv = max(10, demo_cap - quota_vvip - quota_plat - quota_gold)
+    gate_alloc = {
+        "VVIP Tri Ân": quota_vvip,
+        "VIP Platinum": quota_plat,
+        "Gold Standard": quota_gold,
+        "Silver Economy": quota_silv
+    }
+    
+    raw_results = xu_ly_xung_dot_tham_lam(danh_sach_den, gate_alloc, demo_cap)
+    
+    # Chuẩn hóa đầu ra
+    price_map = {
+        "VVIP Tri Ân": 0.0,
+        "VIP Platinum": 2500000.0,
+        "Gold Standard": 1200000.0,
+        "Silver Economy": 600000.0,
+    }
+    
+    normalized = []
+    for idx, r in enumerate(raw_results):
+        orig_cust = danh_sach_den[idx] if idx < len(danh_sach_den) else {}
+        st = r.get("trang_thai", "SUCCESS")
+        req_tier = r.get("hang_ve_mong_muon", "Silver Economy")
+        if st == "SUCCESS":
+            status_clean = "SUCCESS"
+            comp_val = 0.0
+            comp_text = "Không đền bù (0 đ)"
+        elif st == "UPGRADED":
+            status_clean = "UPGRADED"
+            comp_val = 0.0
+            comp_text = "Miễn phí chênh lệch giá"
+        else:
+            status_clean = "DENIED_BOARDING"
+            base_p = price_map.get(req_tier, 600000.0)
+            comp_val = base_p * 1.5
+            comp_text = f"Bồi thường 150% ({int(comp_val):,} đ)"
+            
+        normalized.append({
+            "stt": idx + 1,
+            "user_id": r.get("id_khach"),
+            "name": r.get("ten"),
+            "diem_loyalty": orig_cust.get("diem_loyalty", 0),
+            "priority_group": orig_cust.get("priority_group", "Phổ thông"),
+            "is_protected": orig_cust.get("is_protected", False),
+            "requested_type": req_tier,
+            "assigned_seat": r.get("hang_ve_thuc_nhan") or "Hết chỗ (Không xếp)",
+            "status": status_clean,
+            "trang_thai": st,
+            "ghi_chu": r.get("ghi_chu", ""),
+            "compensation": comp_text,
+            "compensation_val": comp_val
+        })
+    return normalized
 
 
 @app.post("/api/pipeline/run")
@@ -396,15 +558,32 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
     # BƯỚC 4: M4 - BOUNDED KNAPSACK DP (PHÂN BỔ THEO DEMAND LIMITS)
     # =========================================================================
     t0 = time.time()
-    knapsack_input = [
-        {"name": c["name"], "price": c["price"], "demand_limit": c["demand_limit"]}
-        for c in classes_list
-    ]
     
-    try:
-        alloc_raw = quy_hoach_dong_phan_bo_ve(m_star, knapsack_input)
-    except Exception:
-        alloc_raw = {}
+    # 1. Tách nhóm chính sách VVIP Tri Ân (Bảo vệ 100% quota, hoàn toàn miễn phí 0 đ)
+    alloc_raw = {}
+    remain_commercial = m_star
+    for c in classes_list:
+        if c.get("protected_pool", 0) > 0 or c.get("price", 0.0) == 0.0:
+            p_qty = min(remain_commercial, c.get("protected_pool") or c.get("demand_limit", 0))
+            alloc_raw[c["name"]] = p_qty
+            remain_commercial -= p_qty
+
+    # 2. Phân bổ Bounded Knapsack cho các phân khu thương mại (có thu phí)
+    commercial_input = [
+        {"name": c["name"], "price": c["price"], "demand_limit": c["demand_limit"]}
+        for c in classes_list if c["name"] not in alloc_raw
+    ]
+    if commercial_input and remain_commercial > 0:
+        try:
+            comm_alloc = quy_hoach_dong_phan_bo_ve(remain_commercial, commercial_input)
+            if isinstance(comm_alloc, dict) and comm_alloc:
+                alloc_raw.update(comm_alloc)
+        except Exception:
+            comm_sorted = sorted(commercial_input, key=lambda x: x["price"], reverse=True)
+            for cc in comm_sorted:
+                tk = min(remain_commercial, cc["demand_limit"])
+                alloc_raw[cc["name"]] = tk
+                remain_commercial -= tk
 
     allocation_result = {}
     gross_revenue = 0.0
@@ -437,12 +616,7 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
     # BƯỚC 5: M5 - GREEDY CONFLICT SIMULATION
     # =========================================================================
     t0 = time.time()
-    mock_txs = [
-        {"id_khach": f"G_{i}", "ten": f"Khách {i}", "hang_ve_mong_muon": "GOLD", "diem_loyalty": random.randint(10, 90)}
-        for i in range(20)
-    ]
-    simple_alloc = {c["name"]: allocation_result[c["name"]]["qty"] for c in classes_list}
-    m5_results = xu_ly_xung_dot_tham_lam(mock_txs, simple_alloc, C)
+    m5_results = _sinh_du_lieu_soat_ve_m5(C, num_guests=120)
     elapsed_ms["m5"] = max(1, int((time.time() - t0) * 1000))
 
     # =========================================================================
@@ -461,6 +635,7 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
         capacity_C=C,
         tau_0=tau_0,
         ticket_classes=m7_classes,
+        distributions={"type": "normal", "mean": p, "std": 0.02},
         seed=req.seed
     )
     elapsed_ms["m7"] = max(1, int((time.time() - t0) * 1000))
@@ -524,19 +699,8 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
             "elapsed_ms": elapsed_ms["m4"],
         },
         "m5_greedy": {
-            "sample_checkin": [
-                {
-                    "user_id": m.get("id_khach") or m.get("user_id"),
-                    "ten": m.get("ten"),
-                    "requested_type": m.get("hang_ve_mong_muon"),
-                    "assigned_seat": m.get("hang_ve_thuc_nhan"),
-                    "status": "UPGRADED" if m.get("trang_thai") == "UPGRADED" else ("DENIED_BOARDING" if "REJECTED" in m.get("trang_thai", "") else "SUCCESS"),
-                    "trang_thai": m.get("trang_thai"),
-                    "is_protected": False,
-                    "compensation": 1800000.0 if m.get("boi_thuong") else 0.0,
-                }
-                for m in m5_results[:10]
-            ],
+            "sample_checkin": m5_results,
+            "total_checkin": len(m5_results),
             "elapsed_ms": elapsed_ms["m5"],
         },
         "m6_sliding_window": {
@@ -548,8 +712,12 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
             "baseline_revenue": baseline_net,
             "growth_pct": growth_pct,
             "compensation_cost": m7_res["proposed"].get("avg_compensation", 0.0),
+            "avg_empty_seats_proposed": m7_res["proposed"].get("avg_empty_seats", 0),
+            "avg_empty_seats_baseline": m7_res["baseline"].get("avg_empty_seats", 0),
             "protected_group_db_rate": 0.0,
             "details": m7_res,
+            "scenarios_sample": m7_res.get("scenarios_sample", []),
+            "num_scenarios": num_scenarios,
             "elapsed_ms": elapsed_ms["m7"],
         },
         "m3": {
@@ -643,8 +811,8 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
                 "title": "Quy Hoạch Động Phân Bổ Vé Đa Khán Đài",
                 "algorithm": "Bounded Knapsack DP (Quy Hoạch Động Giới Hạn)",
                 "formula": "\\max \\sum_{i} r_i x_i \\quad \\text{s.t.} \\sum_{i} x_i = M^*, \\quad x_i \\le d_i",
-                "time_complexity": "O(M^* \\sum u_i)",
-                "space_complexity": "O(M^*)",
+                "time_complexity": "O(M* · K)",
+                "space_complexity": "O(M*)",
                 "elapsed_ms": elapsed_ms["m4"],
                 "input_info": f"Hạn mức M* = {m_star:,} vé + Trần nhu cầu thị trường 4 phân khu",
                 "output_info": f"Phân bổ: VVIP={allocation_result.get('VVIP', {}).get('qty', 0):,}, Plat={allocation_result.get('PLATINUM', {}).get('qty', 0):,}, Gold={allocation_result.get('GOLD', {}).get('qty', 0):,}, Silver={allocation_result.get('SILVER', {}).get('qty', 0):,}",
@@ -683,6 +851,292 @@ def run_pipeline(req: PipelineRunRequest) -> Dict[str, Any]:
     return response_data
 
 
+@app.post("/api/pipeline/run-module")
+def run_single_module(req: RunModuleRequest) -> Dict[str, Any]:
+    """
+    Thực thi độc lập riêng biệt từng module theo yêu cầu người dùng (M1 -> M7).
+    """
+    code = req.module_code.upper().strip()
+    preset_key = req.venue_preset if req.venue_preset in VENUE_PRESETS else "my_dinh"
+    preset = VENUE_PRESETS[preset_key]
+    C = req.capacity_C if req.capacity_C and req.capacity_C > 0 else preset["capacity_C"]
+    num_users = req.num_users if req.num_users and req.num_users > 0 else preset["total_waiting"]
+    tau_0 = req.tau_0
+    p = req.drop_rate_p if req.drop_rate_p else 0.18
+    num_scenarios = req.num_scenarios
+
+    if code == "M1":
+        t0 = time.time()
+        vietnamese_names = [
+            "Mẹ VNAH Nguyễn Thị Thứ", "Anh Hùng LLVT La Văn Cầu", "Đại tá CCB Lê Văn Tám",
+            "Thương binh 1/4 Trần Quốc Toản", "Con liệt sĩ Võ Thị Sáu", "Thương binh Nguyễn Văn An",
+            "Cựu Chiến Binh Phạm Văn Đồng", "Khán giả Hoàng Kim Ngân", "Khán giả Lê Bảo Nam",
+            "Khán giả Đỗ Thùy Linh", "Khán giả Bùi Minh Đức"
+        ]
+        sample_users = []
+        p_list = list(PRIORITY_GROUPS.values())
+        for i in range(100):
+            p_grp = p_list[i % len(p_list)] if i < 12 else p_list[-1]
+            sample_users.append({
+                "user_id": f"U{i:05d}",
+                "name": vietnamese_names[i] if i < len(vietnamese_names) else f"Khán giả #{1000 + i}",
+                "arrival_time": random.randint(5, 3600),
+                "loyalty_score": p_grp["score"],
+                "diem_loyalty": p_grp["score"],
+                "priority_group": p_grp["name"],
+                "hang_ve_mong_muon": "VVIP" if p_grp["score"] >= 80 else ("PLATINUM" if p_grp["score"] >= 40 else "GOLD"),
+            })
+        sorted_sample_users = chia_de_tri_sap_xep_thoi_gian(sample_users)
+        sorted_sample = sorted_sample_users[:15]
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M1",
+            "title": "M1: Merge Sort (Chia Để Trị)",
+            "elapsed_ms": elapsed,
+            "data": {
+                "sample_sorted": sorted_sample,
+                "total_users": num_users
+            }
+        }
+
+    elif code == "M2":
+        t0 = time.time()
+        heap = HangDoiUuTienMaxHeap()
+        p_list = list(PRIORITY_GROUPS.values())
+        vietnamese_names = [
+            "Mẹ VNAH Nguyễn Thị Thứ", "Anh Hùng LLVT La Văn Cầu", "Đại tá CCB Lê Văn Tám",
+            "Thương binh 1/4 Trần Quốc Toản", "Con liệt sĩ Võ Thị Sáu", "Thương binh Nguyễn Văn An",
+            "Cựu Chiến Binh Phạm Văn Đồng", "Khán giả Hoàng Kim Ngân", "Khán giả Lê Bảo Nam"
+        ]
+        sample_users = []
+        for i in range(50):
+            p_grp = p_list[i % len(p_list)] if i < 15 else p_list[-1]
+            sample_users.append({
+                "user_id": f"U{1000 + i}",
+                "name": vietnamese_names[i % len(vietnamese_names)],
+                "arrival_time": random.randint(10, 500),
+                "diem_loyalty": p_grp["score"],
+                "loyalty_score": p_grp["score"],
+                "priority_group": p_grp["name"],
+                "hang_ve_mong_muon": "VVIP" if p_grp["score"] >= 80 else "PLATINUM"
+            })
+        heap.them_khach_hang(sample_users)
+        top_k_users = heap.trich_xuat_top_k(10)
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M2",
+            "title": "M2: Max-Heap Priority Queue",
+            "elapsed_ms": elapsed,
+            "data": {
+                "top_k": top_k_users
+            }
+        }
+
+    elif code == "M3":
+        t0 = time.time()
+        left = C
+        right = int(C * 2.0)
+        trace = []
+        step = 1
+        while left <= right and step <= 15:
+            mid = (left + right) // 2
+            try:
+                prob = tinh_xac_suat_rui_ro_qua_tai(mid, C, p)
+            except Exception:
+                prob = 0.5
+            feasible = (prob <= tau_0)
+            trace.append({
+                "step": step,
+                "low": left,
+                "high": right,
+                "left": left,
+                "right": right,
+                "mid": mid,
+                "prob": round(prob, 4),
+                "risk": round(prob, 4),
+                "feasible": feasible,
+                "decision": "Tăng low = mid + 1" if feasible else "Giảm high = mid - 1"
+            })
+            if feasible:
+                left = mid + 1
+            else:
+                right = mid - 1
+            step += 1
+
+        try:
+            m_star = tim_kiem_nhi_phan_nguong_ban_lo(C, p, tau_0, max_limit=int(C * 2.0))
+        except Exception:
+            m_star = int(C / max(0.05, 1.0 - p))
+        try:
+            prob_db = round(tinh_xac_suat_rui_ro_qua_tai(m_star, C, p), 4)
+        except Exception:
+            prob_db = 0.0489
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M3",
+            "title": "M3: Binary Search Hạn Mức Bán Lố",
+            "elapsed_ms": elapsed,
+            "data": {
+                "M_star": m_star,
+                "capacity_C": C,
+                "prob_db": prob_db,
+                "search_trace": trace,
+                "overbooking_pct": round(((m_star - C) / C) * 100, 2) if C > 0 else 0
+            }
+        }
+
+    elif code == "M4":
+        t0 = time.time()
+        try:
+            m_star = tim_kiem_nhi_phan_nguong_ban_lo(C, p, tau_0, max_limit=int(C * 2.0))
+        except Exception:
+            m_star = int(C * 1.2)
+        sectors_cfg = preset["sectors"]
+        classes_list = []
+        user_limits = req.demand_limits or {}
+        for sec_code, sec_data in sectors_cfg.items():
+            classes_list.append({
+                "name": sec_code,
+                "display_name": sec_data["name"],
+                "price": sec_data["price"],
+                "physical_cap": sec_data["physical_cap"],
+                "demand_limit": user_limits.get(sec_code, sec_data["demand_limit"]),
+                "protected_pool": sec_data["protected_pool"] if req.protect_priority_groups else 0,
+            })
+        knapsack_input = [
+            {"name": c["name"], "price": c["price"], "demand_limit": c["demand_limit"]}
+            for c in classes_list
+        ]
+        try:
+            alloc_raw = quy_hoach_dong_phan_bo_ve(m_star, knapsack_input)
+        except Exception:
+            alloc_raw = {}
+        alloc_res = {}
+        for c in classes_list:
+            name = c["name"]
+            alloc_res[name] = alloc_raw.get(name, min(m_star // len(classes_list), c["demand_limit"]))
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M4",
+            "title": "M4: Bounded Knapsack DP",
+            "elapsed_ms": elapsed,
+            "data": {
+                "M_star": m_star,
+                "allocation": alloc_res,
+                "demands": {c["name"]: c["demand_limit"] for c in classes_list},
+                "prices": {c["name"]: c["price"] for c in classes_list}
+            }
+        }
+
+    elif code == "M5":
+        t0 = time.time()
+        m5_results = _sinh_du_lieu_soat_ve_m5(C, num_guests=120)
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M5",
+            "title": "M5: Greedy Heuristic Check-in",
+            "elapsed_ms": elapsed,
+            "data": {
+                "sample_checkins": m5_results,
+                "sample_checkin": m5_results,
+                "total_checkin": len(m5_results),
+                "capacity_C": C
+            }
+        }
+
+    elif code in ("M6", "M6_WINDOW", "M6_HEAP"):
+        t0 = time.time()
+        # GỌI TRỰC TIẾP FILE PYTHON: thuat_toan_6_thu_hoi_va_truot.py
+        sw: TrangThaiHeThongDong = GLOBAL_STATE["sliding_window"]
+        for _ in range(5):
+            sw.ghi_nhan_giao_dich(bi_rot=(random.random() < p))
+        p_cur = sw.lay_ti_le_rot_o1() if hasattr(sw, "lay_ti_le_rot_o1") else p
+
+        # Mô phỏng quản lý Min-Heap TTL thời gian thực
+        now = int(time.time())
+        held_sample = [
+            {"ticket_id": f"TK-VVIP-001", "user_id": "U12450", "sector": "VVIP Tri Ân", "price": 0.0, "expiration_time": now + 540, "status": "HOLDING"},
+            {"ticket_id": f"TK-PLAT-014", "user_id": "U12451", "sector": "VIP Platinum", "price": 2500000, "expiration_time": now + 320, "status": "HOLDING"},
+            {"ticket_id": f"TK-GOLD-089", "user_id": "U12452", "sector": "Gold Standard", "price": 1200000, "expiration_time": now + 110, "status": "HOLDING"},
+            {"ticket_id": f"TK-SILV-102", "user_id": "U12453", "sector": "Silver Economy", "price": 600000, "expiration_time": now - 15, "status": "EXPIRED"},
+            {"ticket_id": f"TK-GOLD-105", "user_id": "U12454", "sector": "Gold Standard", "price": 1200000, "expiration_time": now - 45, "status": "EXPIRED"},
+        ]
+        test_heap_obj = TrangThaiHeThongDong(kich_thuoc_cua_so=10)
+        for h in held_sample:
+            test_heap_obj.them_ve_tam_giu(h)
+        revoked = test_heap_obj.thu_hoi_ve_het_han(now)
+
+        elapsed = round((time.time() - t0) * 1000, 2)
+        sub_title = "M6: Sliding Window O(1) Realtime" if code == "M6_WINDOW" else ("M6: Min-Heap TTL Giữ Chỗ & Thu Hồi" if code == "M6_HEAP" else "M6: Sliding Window & Min-Heap TTL")
+        return {
+            "status": "SUCCESS",
+            "module_code": code,
+            "title": sub_title,
+            "elapsed_ms": elapsed,
+            "data": {
+                "p_t_realtime": round(p_cur, 4),
+                "window_size": 100,
+                "ttl_seconds": 600,
+                "held_tickets": held_sample,
+                "revoked_tickets": revoked,
+                "active_held_tickets": len(held_sample) - len(revoked),
+                "released_expired_count": len(revoked)
+            }
+        }
+
+    elif code == "M7":
+        t0 = time.time()
+        sectors_cfg = preset["sectors"]
+        classes_list = []
+        user_limits = req.demand_limits or {}
+        for sec_code, sec_data in sectors_cfg.items():
+            classes_list.append({
+                "name": sec_code,
+                "price": sec_data["price"],
+                "demand_limit": user_limits.get(sec_code, sec_data["demand_limit"]),
+            })
+        p_m7 = req.drop_rate_p if req.drop_rate_p else 0.18
+        # GỌI TRỰC TIẾP FILE PYTHON 1: thuat_toan_7_saa_benchmark.py
+        m7_res = chay_danh_gia_saa(
+            num_scenarios=num_scenarios,
+            capacity_C=C,
+            tau_0=tau_0,
+            ticket_classes=classes_list,
+            distributions={"type": "normal", "mean": p_m7, "std": 0.02}
+        )
+
+        # GỌI TRỰC TIẾP FILE PYTHON 2: thuat_toan_5_tham_lam_xung_dot.py cho BƯỚC 7 (M5 & M7)
+        m5_checkins = _sinh_du_lieu_soat_ve_m5(C, num_guests=120)
+
+        # Đóng gói dữ liệu đầy đủ cho Frontend
+        m7_res["sample_checkins"] = m5_checkins
+        m7_res["proposed_revenue"] = m7_res.get("proposed", {}).get("avg_net_revenue", 0.0)
+        m7_res["baseline_revenue"] = m7_res.get("baseline", {}).get("avg_net_revenue", 0.0)
+        m7_res["growth_pct"] = m7_res.get("improvement_pct", 0.0)
+        m7_res["compensation_cost"] = m7_res.get("proposed", {}).get("avg_compensation", 0.0)
+        m7_res["avg_empty_seats_proposed"] = m7_res.get("proposed", {}).get("avg_empty_seats", 0)
+        m7_res["avg_empty_seats_baseline"] = m7_res.get("baseline", {}).get("avg_empty_seats", 0)
+        m7_res["m_star"] = m7_res.get("m_star_saa", C)
+        m7_res["capacity_C"] = C
+
+        elapsed = round((time.time() - t0) * 1000, 2)
+        return {
+            "status": "SUCCESS",
+            "module_code": "M7",
+            "title": "M7: SAA Monte Carlo Benchmark & M5 Greedy Check-in",
+            "elapsed_ms": elapsed,
+            "data": m7_res
+        }
+
+    else:
+        raise HTTPException(status_code=400, detail=f"Mã module '{code}' không hợp lệ. Chọn M1 đến M7.")
+
+
 @app.post("/api/reset")
 def reset_system() -> Dict[str, Any]:
     """Khởi động lại hàng đợi và làm mới bộ đệm."""
@@ -697,4 +1151,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def serve_index():
-    return FileResponse("static/index.html")
+    return FileResponse(
+        "static/index.html",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+

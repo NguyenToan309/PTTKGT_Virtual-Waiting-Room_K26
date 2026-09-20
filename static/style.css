@@ -1,78 +1,1015 @@
 /* ==========================================================================
-   STYLE.CSS - ĐẠI NHẠC HỘI QUỐC GIA 2026 (CYBER-NATIONAL LUXURY THEME)
-   Tuân thủ quy chuẩn Master Prompt v2.0 & WCAG AAA (Contrast >= 7:1)
+   CONCERTPASS PRO - STYLESHEET CHUẨN NỀN TẢNG BÁN VÉ QUỐC TẾ
+   Tham chiếu: Ticketmaster, Live Nation, AXS & Stripe Enterprise
+   Tuân thủ WCAG AAA, Clean Enterprise UI, 0% AI/Cyberpunk artifacts
    ========================================================================== */
 
 :root {
-  /* Bảng màu chính thức WCAG AAA */
-  --bg-deep: #050814;
-  --bg-gradient: linear-gradient(135deg, #050814 0%, #0A1128 60%, #060B1E 100%);
-  --surface-glass: rgba(15, 23, 42, 0.75);
-  --surface-solid: #0F172A;
-  --surface-card: #131E36;
-  --surface-card-hover: #192745;
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-gold: rgba(212, 175, 55, 0.3);
+  /* Bảng màu chuẩn Ticketing Enterprise */
+  --tm-navy-dark: #0A192F;
+  --tm-navy-surface: #0B132B;
+  --tm-slate-bg: #0F172A;
+  --tm-card-bg: #1E293B;
+  --tm-card-hover: #24344D;
+  --tm-border: rgba(255, 255, 255, 0.1);
+  --tm-border-strong: #334155;
+  --tm-border-subtle: rgba(255, 255, 255, 0.05);
 
-  /* Màu điểm nhấn v2.0 */
-  --gold-primary: #D4AF37;
-  --gold-amber: #F59E0B;
-  --cyber-cyan: #06B6D4;
-  --cyber-blue: #60A5FA; /* Sửa v2.0: 7.9:1 */
-  --emerald-success: #10B981;
-  --ruby-danger: #F87171;   /* Sửa v2.0: 7.3:1 */
+  /* Màu thương hiệu Ticketmaster & Phân loại sự kiện */
+  --tm-blue: #026CDF;
+  --tm-blue-hover: #0056B3;
+  --tm-blue-light: #E0F2FE;
+  --tm-blue-soft: rgba(2, 108, 223, 0.15);
 
-  /* Text colors */
+  /* Màu trạng thái chuẩn thương mại */
+  --tm-green: #10B981;
+  --tm-green-hover: #059669;
+  --tm-green-soft: rgba(16, 185, 129, 0.15);
+  
+  --tm-amber: #F59E0B;
+  --tm-amber-gold: #D97706;
+  --tm-amber-soft: rgba(245, 158, 11, 0.15);
+
+  --tm-cyan: #0284C7;
+  --tm-red: #EF4444;
+  --tm-red-soft: rgba(239, 68, 68, 0.15);
+
+  /* Typography Text Colors */
+  --text-white: #FFFFFF;
   --text-main: #F8FAFC;
   --text-muted: #94A3B8;
   --text-dim: #64748B;
-  --text-gold: #FCD34D;
-  --text-cyan: #38BDF8;
+  --text-highlight: #38BDF8;
 
   /* Fonts */
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Shadows */
-  --glow-gold: 0 0 20px rgba(212, 175, 55, 0.25);
-  --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.25);
-  --glow-danger: 0 0 20px rgba(248, 113, 113, 0.35);
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  /* Shadows phẳng mềm mại (Corporate Drop Shadows) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.45);
 }
 
-/* Reset cơ bản */
+/* Base Reset */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--bg-deep);
-  background-image: var(--bg-gradient);
-  background-attachment: fixed;
+  background-color: var(--tm-slate-bg);
   color: var(--text-main);
   font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   1. STICKY APP HEADER
+   GLOBAL SVG SIZING & BACKWARD COMPATIBILITY
+   ========================================================================== */
+svg {
+  max-width: 100%;
+}
+
+.icon-svg {
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  display: inline-block !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.crest-svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: inline-block !important;
+}
+
+.view-switch-wrapper {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  background: #131E33 !important;
+  padding: 4px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--tm-border-strong) !important;
+  gap: 4px !important;
+}
+
+.view-switch-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  padding: 7px 14px !important;
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  font-family: var(--font-heading) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.view-switch-btn:hover {
+  color: var(--text-white) !important;
+}
+
+.view-switch-btn.active {
+  background-color: var(--tm-blue) !important;
+  color: var(--text-white) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.view-switch-btn svg,
+.view-switch-btn .icon-svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  flex-shrink: 0 !important;
+}
+
+.national-emblem {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(2, 108, 223, 0.12);
+  border: 1px solid var(--tm-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-white);
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.server-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #131E33;
+  border: 1px solid var(--tm-border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #A7F3D0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--tm-green);
+}
+
+.surge-banner {
+  background: #162032;
+  border: 1px solid #0284C7;
+  border-left: 4px solid var(--tm-blue);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.surge-icon {
+  font-size: 1.3rem;
+}
+
+.surge-content {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #E2E8F0;
+}
+
+.view-panel {
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.view-panel.active {
+  display: flex;
+}
+
+.citizen-grid {
+  display: grid;
+  grid-template-columns: 440px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .citizen-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.glass-card {
+  background: var(--tm-card-bg);
+  border: 1px solid var(--tm-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.card-header-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FCD34D;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.user-id-chip {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.queue-number-display {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.queue-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.queue-big-number {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-white);
+  line-height: 1.1;
+  margin: 6px 0;
+}
+
+.queue-total-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.stepper-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 4px;
+}
+
+.step-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #24344D;
+  border: 1px solid var(--tm-border-strong);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.stepper-step.active .step-circle {
+  background: var(--tm-blue);
+  border-color: var(--tm-blue);
+  color: var(--text-white);
+}
+
+.step-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.stepper-step.active .step-name {
+  color: var(--text-white);
+}
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: #24344D;
+  margin: 0 6px 14px;
+}
+
+.stepper-line.active {
+  background: var(--tm-blue);
+}
+
+.queue-metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.metric-item {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.m-label {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.m-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+}
+
+.m-val.highlight { color: #38BDF8; }
+.m-val.gold { color: #F59E0B; }
+
+.queue-disclaimer {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid var(--tm-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  align-items: center;
+}
+
+.disclaimer-icon {
+  width: 18px !important;
+  height: 18px !important;
+  color: #38BDF8;
+  flex-shrink: 0;
+}
+
+.queue-actions {
+  margin-top: 14px;
+}
+
+.btn-primary-gold {
+  background: var(--tm-blue);
+  color: var(--text-white);
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  width: 100%;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-heading);
+}
+
+.btn-primary-gold:hover {
+  background: var(--tm-blue-hover);
+}
+
+.btn-primary-cyan {
+  background: var(--tm-green);
+  color: var(--text-white);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-heading);
+}
+
+.btn-primary-cyan:hover {
+  background: var(--tm-green-hover);
+}
+
+/* Legacy Admin & Seating Fallback Styles */
+.stadium-map-wrapper {
+  background: #09101D;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.stadium-svg {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+}
+
+.field-grass {
+  fill: #064E3B;
+  stroke: #047857;
+}
+
+.stage-platform {
+  fill: #1E293B;
+  stroke: #475569;
+}
+
+.stage-text {
+  fill: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.sector-label {
+  fill: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.sector-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sector-btn-card .s-name {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.sector-btn-card .s-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #38BDF8;
+}
+
+.sector-btn-card .s-quota {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.sector-btn-card .s-badge {
+  font-size: 0.65rem;
+  color: #FCD34D;
+  font-weight: 600;
+}
+
+.hold-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--tm-border);
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.seat-qty-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-input-number {
+  background: #0B132B;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 6px;
+  color: var(--text-white);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.custom-input-number.sm {
+  width: 54px;
+  text-align: center;
+}
+
+.qty-chips {
+  display: flex;
+  gap: 4px;
+}
+
+.ttl-countdown-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #141E33;
+  border: 1px solid #0284C7;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #FCD34D;
+}
+
+/* Control Panel Strip (Admin) */
+.control-panel-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.config-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--tm-border);
+  padding-bottom: 12px;
+}
+
+.cfg-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38BDF8;
+}
+
+.cfg-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.control-row-main.inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 240px;
+  gap: 14px;
+}
+
+@media (max-width: 1024px) {
+  .control-row-main.inputs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ctrl-group {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ctrl-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-white);
+}
+
+.slider-subtext {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.input-with-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ctrl-actions-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demand-sliders-bar {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demand-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #CBD5E1;
+}
+
+.demand-sliders-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.d-slider-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.d-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.d-input-num {
+  background: #0B132B;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 4px;
+  color: var(--text-white);
+  padding: 4px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+/* KPI Cards Grid */
+.kpi-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1200px) {
+  .kpi-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+}
+
+.kpi-icon {
+  font-size: 1.2rem;
+  background: #141E33;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-title {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.kpi-value {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-white);
+}
+
+.kpi-value.gold { color: #F59E0B; }
+.kpi-value.cyan { color: #38BDF8; }
+.kpi-value.revenue { color: #10B981; }
+
+.kpi-note {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.tag-badge.green {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6EE7B7;
+}
+
+.tag-badge.gold {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
+}
+
+/* Pipeline Stepper Container */
+.pipeline-stepper-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.step-controller-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-indicator-pill {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-step {
+  background: #141E33;
+  border: 1px solid var(--tm-border-strong);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* E-Ticket Luxury */
+.eticket-section {
+  margin-top: 20px;
+}
+
+.luxury-ticket-card {
+  display: grid;
+  grid-template-columns: 1fr 20px 240px;
+  background: #FFFFFF;
+  color: #0F172A;
+  border-radius: 14px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.ticket-left {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-right {
+  background: #F8FAFC;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.ticket-divider {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ticket-divider .notch {
+  width: 20px;
+  height: 20px;
+  background: var(--tm-slate-bg);
+  border-radius: 50%;
+}
+
+.ticket-divider .notch.top { margin-top: -10px; }
+.ticket-divider .notch.bottom { margin-bottom: -10px; }
+
+.ticket-divider .dash-line {
+  flex: 1;
+  width: 1px;
+  border-left: 2px dashed #CBD5E1;
+  margin: 6px 0;
+}
+
+.ticket-watermark { display: none; }
+
+.ticket-event-badge {
+  background: #026CDF;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.ticket-event-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.ticket-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.ticket-meta-grid .meta-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticket-meta-grid .lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.ticket-meta-grid .val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.ticket-meta-grid .val.cyan { color: var(--tm-blue); }
+.ticket-meta-grid .val.gold { color: #D97706; }
+
+.ticket-seal-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.seal-circle {
+  border: 1.5px solid #026CDF;
+  color: #026CDF;
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 50%;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.qr-canvas-mock {
+  width: 130px;
+  height: 130px;
+}
+
+.qr-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.qr-id-text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.btn-secondary-gate {
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+}
+
+
+
+/* ==========================================================================
+   1. TOP UTILITY BAR (Chuẩn website bán vé chính thức)
+   ========================================================================== */
+.top-utility-bar {
+  background-color: #070D19;
+  border-bottom: 1px solid var(--tm-border-subtle);
+  padding: 6px 24px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.top-bar-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-bar-left, .top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.security-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #CBD5E1;
+}
+
+.icon-sm {
+  width: 14px;
+  height: 14px;
+  stroke: var(--tm-green);
+}
+
+.top-sep {
+  color: var(--tm-border-strong);
+}
+
+.hotline-badge strong {
+  color: var(--text-white);
+}
+
+.link-item {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.link-item:hover {
+  color: var(--tm-blue);
+}
+
+/* ==========================================================================
+   2. MAIN HEADER & DUAL-PORTAL SWITCH
    ========================================================================== */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(5, 8, 20, 0.88);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-glass);
-  padding: 12px 24px;
+  background-color: var(--tm-navy-dark);
+  border-bottom: 1px solid var(--tm-border);
+  padding: 10px 24px;
+  box-shadow: var(--shadow-md);
 }
 
 .header-container {
@@ -84,175 +1021,456 @@ body {
   gap: 16px;
 }
 
+/* Brand Logo */
 .brand-group {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
 }
 
-.national-emblem {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(5, 8, 20, 0.6) 80%);
-  border: 1.5px solid var(--gold-primary);
+.brand-logo-badge {
+  width: 38px;
+  height: 38px;
+  background: rgba(2, 108, 223, 0.12);
+  border: 1px solid var(--tm-blue);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--glow-gold);
 }
 
-.crest-svg {
-  width: 24px;
-  height: 24px;
+.logo-svg {
+  width: 22px;
+  height: 22px;
 }
 
-.brand-title {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.brand-subtitle {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.server-status-pill {
+.brand-name-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-glass);
-  padding: 6px 14px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+}
+
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-white);
+  letter-spacing: -0.5px;
+}
+
+.brand-highlight {
+  color: var(--tm-blue);
+}
+
+.brand-partner-badge {
+  background: #1E293B;
+  color: #38BDF8;
+  border: 1px solid #0284C7;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.brand-sub {
+  font-size: 0.7rem;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--emerald-success);
+/* Search Bar sự kiện */
+.event-search-wrapper {
+  flex: 1;
+  max-width: 380px;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.status-dot.pulse {
-  animation: pulse-dot 2s infinite;
-}
-
-.divider {
+.search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
   color: var(--text-dim);
 }
 
-/* Nút chuyển đổi Dual-View */
-.view-switch-wrapper {
-  display: flex;
-  background: rgba(15, 23, 42, 0.9);
-  padding: 4px;
-  border-radius: 9999px;
-  border: 1px solid var(--border-glass);
+.search-input {
+  width: 100%;
+  background: #131E33;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 6px;
+  padding: 8px 65px 8px 36px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  outline: none;
 }
 
-.view-switch-btn {
+.search-input:focus {
+  border-color: var(--tm-blue);
+}
+
+.search-badge {
+  position: absolute;
+  right: 8px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #F87171;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Server Status Node */
+.server-node-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #131E33;
+  border: 1px solid var(--tm-border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--tm-green);
+  box-shadow: 0 0 6px var(--tm-green);
+}
+
+.node-title {
+  color: #A7F3D0;
+}
+
+.node-sep {
+  color: var(--text-dim);
+}
+
+.node-venue {
+  color: var(--text-muted);
+}
+
+/* Dual-Portal Switch Tabs */
+.portal-nav-tabs {
+  display: flex;
+  background: #131E33;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--tm-border-strong);
+}
+
+.portal-tab-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   background: transparent;
   border: none;
   color: var(--text-muted);
-  padding: 8px 18px;
-  border-radius: 9999px;
+  padding: 7px 16px;
+  border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 700;
+  font-family: var(--font-heading);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
-.view-switch-btn .icon-svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+.portal-tab-btn:hover {
+  color: var(--text-white);
 }
 
-.view-switch-btn.active {
-  background: linear-gradient(135deg, #D4AF37 0%, #F59E0B 100%);
-  color: #050814;
-  box-shadow: var(--glow-gold);
+.portal-tab-btn.active {
+  background-color: var(--tm-blue);
+  color: var(--text-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-icon {
+  width: 15px;
+  height: 15px;
 }
 
 /* ==========================================================================
-   2. MAIN CONTENT LAYOUT
+   3. SUB-NAV BAR (Category Links & Trust Elements)
    ========================================================================== */
-.main-content {
+.sub-nav-bar {
+  background-color: #0E1626;
+  border-bottom: 1px solid var(--tm-border-subtle);
+  padding: 8px 24px;
+  font-size: 0.8rem;
+}
+
+.sub-nav-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cat-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+}
+
+.cat-link:hover, .cat-link.active {
+  color: var(--text-white);
+  border-bottom-color: var(--tm-blue);
+}
+
+.trust-indicators {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #94A3B8;
+  font-size: 0.75rem;
+}
+
+.check-icon {
+  color: var(--tm-green);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   4. MAIN LAYOUT & COMMON COMPONENTS
+   ========================================================================== */
+.main-layout {
   flex: 1;
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px;
+  padding: 20px 24px 40px;
 }
 
-.view-panel {
+.portal-view {
   display: none;
-  animation: fadeIn 0.3s ease;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.view-panel.active {
-  display: block;
+.portal-view.active {
+  display: flex;
 }
 
-/* Giới hạn 5 bề mặt kính mờ (Tối ưu GPU theo Section IV) */
-.glass-card {
-  background: var(--surface-glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
+/* Thẻ Card Tiêu Chuẩn Phẳng (Flat Standard Card) */
+.ticket-card {
+  background: var(--tm-card-bg);
+  border: 1px solid var(--tm-border);
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-md);
+}
+
+/* Nút Bấm Chuẩn E-Commerce */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary-blue {
+  background-color: var(--tm-blue);
+  color: var(--text-white);
+}
+
+.btn-primary-blue:hover {
+  background-color: var(--tm-blue-hover);
+}
+
+.btn-primary-green {
+  background-color: var(--tm-green);
+  color: var(--text-white);
+}
+
+.btn-primary-green:hover {
+  background-color: var(--tm-green-hover);
+}
+
+.btn-outline-slate {
+  background: transparent;
+  border: 1px solid var(--tm-border-strong);
+  color: var(--text-muted);
+}
+
+.btn-outline-slate:hover {
+  border-color: var(--text-white);
+  color: var(--text-white);
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+}
+
+/* Badges & Tags */
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.tag-badge.official {
+  background: rgba(2, 108, 223, 0.2);
+  color: #38BDF8;
+  border: 1px solid #0284C7;
+}
+
+.tag-badge.live-surge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #FCA5A5;
+  border: 1px solid #EF4444;
+}
+
+.tag-badge.protected {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
+  border: 1px solid #F59E0B;
 }
 
 /* ==========================================================================
-   3. VIEW 1: CỔNG KHÁN GIẢ (CITIZEN PORTAL)
+   5. EVENT HERO BANNER (Đại Nhạc Hội Quốc Gia)
    ========================================================================== */
-.surge-banner {
+.event-hero-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0A192F 0%, #172554 60%, #0F172A 100%);
+  border: 1px solid var(--tm-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.event-hero-banner {
+  padding: 28px 32px;
+  position: relative;
+}
+
+.event-badges-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
-  border: 1px solid var(--gold-primary);
-  border-radius: 12px;
-  padding: 12px 20px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.event-main-title {
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-white);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.event-subtitle {
+  font-size: 0.95rem;
+  color: #94A3B8;
+  margin-bottom: 18px;
+}
+
+.event-meta-strip {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.85rem;
+  color: #CBD5E1;
 }
 
-.surge-icon {
-  font-size: 1.5rem;
-  animation: pulse-icon 1.5s infinite;
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.surge-content {
+.meta-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--tm-blue);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   6. SURGE ALERT BANNER (Thông báo lưu lượng đỉnh)
+   ========================================================================== */
+.surge-alert-box {
+  background: #162032;
+  border: 1px solid #0284C7;
+  border-left: 4px solid var(--tm-blue);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.surge-alert-icon {
+  color: #38BDF8;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.surge-alert-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.surge-alert-text {
   flex: 1;
-  color: var(--text-main);
+  font-size: 0.85rem;
+  color: #E2E8F0;
+  line-height: 1.5;
 }
 
-.surge-content span {
+.highlight-number {
+  color: var(--text-white);
   font-weight: 700;
-  color: var(--text-gold);
+  font-family: var(--font-mono);
 }
 
 .btn-audio-toggle {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--border-gold);
-  color: var(--text-gold);
+  background: #1E293B;
+  border: 1px solid var(--tm-border-strong);
+  color: var(--text-main);
   padding: 6px 14px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -260,85 +1478,181 @@ body {
 }
 
 .btn-audio-toggle:hover {
-  background: rgba(212, 175, 55, 0.2);
+  background: #27354A;
 }
 
-.citizen-grid {
+/* ==========================================================================
+   7. CITIZEN VIEW: BOOKING GRID & QUEUE-IT PROGRESS
+   ========================================================================== */
+.booking-grid {
   display: grid;
-  grid-template-columns: 480px 1fr;
-  gap: 24px;
-}
-
-/* Thẻ số thứ tự hàng đợi */
-.queue-ticket-card {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: 440px 1fr;
   gap: 20px;
 }
 
-.card-header-compact {
+@media (max-width: 1024px) {
+  .booking-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Thẻ Hàng Đợi Virtual Waiting Room */
+.queue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.queue-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--tm-border);
 }
 
-.card-badge {
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid var(--gold-primary);
-  color: var(--text-gold);
-  padding: 4px 12px;
-  border-radius: 9999px;
+.queue-session-tag {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.queue-session-id {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #60A5FA;
+  font-weight: 600;
+}
+
+.card-badge.priority {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FCD34D;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.user-chip {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+.queue-position-section {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.queue-sec-label {
+  display: block;
   font-size: 0.75rem;
   font-weight: 700;
-}
-
-.user-id-chip {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
   color: var(--text-muted);
+  letter-spacing: 0.5px;
 }
 
-.queue-number-display {
-  text-align: center;
-  background: rgba(10, 17, 40, 0.7);
-  border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 24px 16px;
-}
-
-.queue-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 1px;
-}
-
-.queue-big-number {
-  font-family: var(--font-mono);
-  font-size: 3.5rem;
+.queue-number-hero {
+  font-family: var(--font-heading);
+  font-size: 3rem;
   font-weight: 800;
-  color: var(--cyber-blue);
-  line-height: 1.2;
+  color: var(--text-white);
+  line-height: 1.1;
   margin: 6px 0;
-  text-shadow: 0 0 30px rgba(96, 165, 250, 0.4);
+  letter-spacing: -1px;
 }
 
-.queue-total-hint {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-}
-
-.queue-total-hint span {
+.queue-total-context {
+  font-size: 0.82rem;
   color: var(--text-muted);
+}
+
+.queue-total-context strong, .queue-total-context span {
+  color: #CBD5E1;
+}
+
+/* ==========================================================================
+   8. WALKING PERSON QUEUE PROGRESS BAR (Queue-it / Ticketmaster Style)
+   ========================================================================== */
+.queue-walker-container {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 16px 14px 10px;
+}
+
+.walker-track-bg {
+  position: relative;
+  height: 8px;
+  background: #24344D;
+  border-radius: 9999px;
+  margin: 20px 8px 8px;
+}
+
+.walker-track-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #0284C7 0%, #026CDF 100%);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.walking-person-avatar {
+  position: absolute;
+  top: -24px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.4s ease;
+}
+
+.walker-emoji {
+  font-size: 1.4rem;
+  display: inline-block;
+  animation: walker-bounce 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes walker-bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+.walker-you-bubble {
+  background: var(--tm-blue);
+  color: var(--text-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  margin-top: -2px;
+}
+
+.walker-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding: 0 4px;
+}
+
+.walker-labels .w-status {
+  color: #38BDF8;
   font-weight: 600;
 }
 
-/* Animated Stepper Track */
-.stepper-track {
+/* Quy Trình Stepper 4 Bước */
+.stepper-horizontal {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 10px 4px;
 }
 
 .stepper-step {
@@ -346,1549 +1660,2545 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.stepper-step.active {
+  opacity: 1;
 }
 
 .step-circle {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--surface-card);
-  border: 2px solid var(--text-dim);
+  background: #24344D;
+  border: 1px solid var(--tm-border-strong);
   color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.step-name {
-  font-size: 0.65rem;
-  color: var(--text-dim);
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .stepper-step.active .step-circle {
-  background: var(--gold-primary);
-  border-color: var(--gold-primary);
-  color: #050814;
-  box-shadow: var(--glow-gold);
+  background: var(--tm-blue);
+  border-color: var(--tm-blue);
+  color: var(--text-white);
 }
 
-.stepper-step.active .step-name {
-  color: var(--text-gold);
+.step-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.stepper-step.active .step-text {
+  color: var(--text-white);
 }
 
 .stepper-line {
   flex: 1;
   height: 2px;
-  background: var(--border-glass);
-  margin: 0 6px;
-  margin-bottom: 16px;
+  background: #24344D;
+  margin: 0 6px 14px;
 }
 
 .stepper-line.active {
-  background: var(--gold-primary);
+  background: var(--tm-blue);
 }
 
-/* Các chỉ số xếp hàng */
-.queue-metrics-strip {
+/* Queue Stats Grid */
+.queue-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.q-stat-card {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  padding: 8px 10px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 8px;
-  padding: 12px;
+  gap: 2px;
 }
 
-.metric-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
+.q-stat-card.highlight {
+  border-color: rgba(2, 108, 223, 0.4);
 }
 
-.metric-item .m-label {
-  color: var(--text-muted);
-}
-
-.metric-item .m-val {
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-.metric-item .m-val.highlight {
-  color: var(--cyber-cyan);
-}
-
-.metric-item .m-val.gold {
-  color: var(--text-gold);
-}
-
-.queue-disclaimer {
-  display: flex;
-  gap: 8px;
-  font-size: 0.7rem;
+.q-stat-lbl {
+  font-size: 0.68rem;
   color: var(--text-dim);
-  line-height: 1.4;
 }
 
-.disclaimer-icon {
-  width: 16px;
-  height: 16px;
-  stroke: var(--text-dim);
-  fill: none;
+.q-stat-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+}
+
+.text-blue { color: #38BDF8 !important; }
+.text-amber { color: #F59E0B !important; }
+.text-green { color: #10B981 !important; }
+.text-cyan { color: #06B6D4 !important; }
+
+/* Notice Box */
+.queue-notice-box {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid var(--tm-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.notice-icon {
+  width: 18px;
+  height: 18px;
+  color: #38BDF8;
   flex-shrink: 0;
 }
 
-/* Sơ đồ Sân vận động SVG & Khán đài */
-.sector-selection-card {
+.notice-text strong {
+  color: #CBD5E1;
+}
+
+.queue-cta-action {
+  margin-top: auto;
+}
+
+.queue-cta-action .btn {
+  width: 100%;
+  padding: 12px;
+}
+
+/* ==========================================================================
+   9. SEATING & TIER SELECTION (Sơ đồ sân Mỹ Đình & Đặt Vé)
+   ========================================================================== */
+.seating-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.card-header {
+.card-head-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
-.card-title {
+.card-heading {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-white);
 }
 
-.ttl-countdown-pill {
+.card-subheading {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Cart TTL Countdown Timer Pill */
+.cart-ttl-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(248, 113, 113, 0.15);
-  border: 1px solid var(--ruby-danger);
-  padding: 4px 12px;
+  gap: 8px;
+  background: #141E33;
+  border: 1px solid #0284C7;
+  padding: 6px 14px;
   border-radius: 9999px;
   font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.cart-ttl-pill.danger {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #EF4444;
+}
+
+.cart-ttl-pill.danger .ttl-clock {
+  color: #F87171;
+}
+
+.ttl-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--tm-amber);
+  animation: pulse-clock 1s infinite alternate;
+}
+
+@keyframes pulse-clock {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.ttl-title {
+  color: var(--text-muted);
+}
+
+.ttl-clock {
+  color: #FCD34D;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 700;
 }
 
-.ttl-timer {
-  font-family: var(--font-mono);
-  color: var(--ruby-danger);
-  font-size: 0.9rem;
-}
-
-.ttl-timer.pulse-danger {
-  animation: pulse-danger 1s infinite;
-}
-
-.stadium-map-wrapper {
-  background: #070D1E;
-  border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 12px;
+/* Sơ đồ Sân Mỹ Đình CAD SVG */
+.stadium-interactive-wrapper {
+  background: #09101D;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 10px;
   display: flex;
   justify-content: center;
 }
 
-.stadium-svg {
+.stadium-cad-svg {
   width: 100%;
-  max-width: 540px;
+  max-width: 600px;
   height: auto;
+  user-select: none;
 }
 
-.field-grass {
-  fill: #0A1B2A;
-  stroke: #1E3A5F;
+.stadium-outer-ring {
+  fill: #0F172A;
+  stroke: #1E293B;
   stroke-width: 2;
 }
 
-.stage-platform {
-  fill: #1E293B;
-  stroke: var(--cyber-cyan);
+.stadium-field {
+  fill: #064E3B;
+  stroke: #047857;
   stroke-width: 1.5;
 }
 
-.stage-text {
-  fill: var(--cyber-cyan);
-  font-size: 10px;
-  font-weight: 800;
+.stadium-stage {
+  fill: #1E293B;
+  stroke: #475569;
+  stroke-width: 1.5;
+}
+
+.stage-catwalk {
+  fill: #334155;
+}
+
+.svg-text {
+  font-family: var(--font-heading);
   text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.stage-title {
+  fill: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
   letter-spacing: 1px;
 }
 
-.sector-poly {
-  cursor: pointer;
-  transition: all 0.25s ease;
-  stroke-width: 1.5;
+.stage-sub {
+  fill: #94A3B8;
+  font-size: 8px;
+  font-weight: 600;
 }
 
-.sector-vvip {
-  fill: rgba(212, 175, 55, 0.35);
-  stroke: var(--gold-primary);
-}
-
-.sector-platinum {
-  fill: rgba(96, 165, 250, 0.3);
-  stroke: var(--cyber-blue);
-}
-
-.sector-gold {
-  fill: rgba(245, 158, 11, 0.25);
-  stroke: var(--gold-amber);
-}
-
-.sector-silver {
-  fill: rgba(148, 163, 184, 0.2);
-  stroke: #94A3B8;
-}
-
-.sector-poly:hover,
-.sector-poly.active {
-  filter: brightness(1.4);
-  stroke-width: 2.5;
-}
-
-.sector-label {
+.sector-text-bold {
   fill: #FFFFFF;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  text-anchor: middle;
   pointer-events: none;
 }
 
-/* Lưới thẻ chọn phân khu */
-.sector-cards-grid {
+/* Các Sector Polygons */
+.sector-poly {
+  cursor: pointer;
+  stroke-width: 1.5;
+  transition: all 0.2s ease;
+}
+
+.sector-poly.sector-vvip {
+  fill: rgba(217, 119, 6, 0.45);
+  stroke: #D97706;
+}
+
+.sector-poly.sector-platinum {
+  fill: rgba(2, 108, 223, 0.45);
+  stroke: #026CDF;
+}
+
+.sector-poly.sector-gold {
+  fill: rgba(202, 138, 4, 0.4);
+  stroke: #CA8A04;
+}
+
+.sector-poly.sector-silver {
+  fill: rgba(100, 116, 139, 0.4);
+  stroke: #64748B;
+}
+
+.sector-poly:hover {
+  fill-opacity: 0.8;
+  stroke-width: 2.5;
+  stroke: #FFFFFF;
+}
+
+.sector-poly.active {
+  fill-opacity: 0.9;
+  stroke: #FFFFFF;
+  stroke-width: 3;
+}
+
+/* Tier Cards Grid */
+.tier-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
+@media (max-width: 640px) {
+  .tier-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .sector-btn-card {
-  background: var(--surface-card);
-  border: 1px solid var(--border-glass);
-  border-radius: 10px;
-  padding: 10px;
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .sector-btn-card:hover {
-  background: var(--surface-card-hover);
-  border-color: var(--cyber-blue);
+  background: #1A263E;
+  border-color: #475569;
 }
 
 .sector-btn-card.active {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: var(--gold-primary);
-  box-shadow: var(--glow-gold);
+  background: #1B2944;
+  border-color: var(--tm-blue);
+  box-shadow: 0 0 0 1px var(--tm-blue);
 }
 
-.sector-btn-card .s-name {
+.tier-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tier-name {
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
   font-weight: 700;
-  font-size: 0.8rem;
+  color: var(--text-white);
 }
 
-.sector-btn-card .s-price {
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 0.85rem;
-  color: var(--text-gold);
-}
-
-.sector-btn-card .s-quota {
+.tier-badge {
   font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.sector-btn-card .s-badge {
-  font-size: 0.6rem;
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  width: fit-content;
 }
 
-.sector-btn-card .s-badge.protected {
-  background: rgba(212, 175, 55, 0.25);
-  color: var(--text-gold);
+.tier-badge.gold {
+  background: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
 }
 
-.hold-action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 8px;
+.tier-badge.blue {
+  background: rgba(2, 108, 223, 0.2);
+  color: #38BDF8;
 }
 
-/* Thẻ Vé Hologram QR Code */
-.eticket-section {
-  margin-top: 24px;
-  animation: slideUp 0.4s ease;
+.tier-badge.slate {
+  background: rgba(148, 163, 184, 0.15);
+  color: #CBD5E1;
 }
 
-.luxury-ticket-card {
-  display: flex;
-  background: linear-gradient(135deg, #111A30 0%, #162444 100%);
-  border: 2px solid var(--gold-primary);
-  border-radius: 20px;
-  box-shadow: var(--glow-gold);
-  overflow: hidden;
-  position: relative;
-}
-
-.ticket-left {
-  flex: 1;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  position: relative;
-}
-
-.ticket-watermark {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  font-size: 4rem;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.03);
-  pointer-events: none;
-}
-
-.ticket-event-badge {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--text-gold);
-  letter-spacing: 1px;
-}
-
-.ticket-event-title {
+.tier-price {
   font-family: var(--font-heading);
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #FFFFFF;
 }
 
-.ticket-meta-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.tier-quota-info {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
-.meta-box .lbl {
-  display: block;
-  font-size: 0.65rem;
-  color: var(--text-muted);
+.quota-highlight {
+  color: #38BDF8;
   font-weight: 600;
 }
 
-.meta-box .val {
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.meta-box .val.gold {
-  color: var(--text-gold);
-}
-
-.meta-box .val.cyan {
-  color: var(--cyber-cyan);
-}
-
-.ticket-seal-box {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(5, 8, 20, 0.4);
-  padding: 10px 14px;
-  border-radius: 8px;
-}
-
-.seal-circle {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px dashed var(--gold-primary);
-  color: var(--text-gold);
-  font-size: 0.5rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1.1;
-}
-
-.seal-text {
-  font-size: 0.7rem;
+.tier-desc {
+  font-size: 0.72rem;
   color: var(--text-dim);
+  line-height: 1.35;
+  margin-top: 2px;
 }
 
-.ticket-divider {
-  width: 24px;
+/* Booking Action Footer */
+.booking-action-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tm-border);
+  flex-wrap: wrap;
+}
+
+.qty-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.qty-control-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-input-qty {
+  width: 54px;
+  background: #141E33;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 6px;
+  color: var(--text-white);
+  padding: 6px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.qty-chip-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-qty-chip {
+  width: 30px;
+  height: 30px;
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-qty-chip:hover {
+  color: var(--text-white);
+  border-color: #64748B;
+}
+
+.btn-qty-chip.active {
+  background: var(--tm-blue);
+  color: var(--text-white);
+  border-color: var(--tm-blue);
+}
+
+/* ==========================================================================
+   10. E-TICKET PASS (Apple Wallet / SafeTix™ Style)
+   ========================================================================== */
+.eticket-wrapper {
+  margin-top: 10px;
+}
+
+.wallet-ticket-card {
+  display: grid;
+  grid-template-columns: 1fr 20px 240px;
+  background: #FFFFFF;
+  color: #0F172A;
+  border-radius: 14px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .wallet-ticket-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ticket-main-side {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ticket-brand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.t-badge-row {
+  display: flex;
+  gap: 8px;
+}
+
+.t-badge-official {
+  background: #026CDF;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.t-badge-verified {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.t-order-id {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.t-event-name {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.5px;
+}
+
+.t-event-schedule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.t-event-schedule .sep {
+  color: #CBD5E1;
+}
+
+/* Seating Strip */
+.t-seating-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.seat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.seat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748B;
+  letter-spacing: 0.5px;
+}
+
+.seat-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+  font-family: var(--font-heading);
+}
+
+.seat-col.highlight .seat-val {
+  color: var(--tm-blue);
+  font-size: 1.05rem;
+}
+
+/* Khán Giả */
+.t-holder-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.holder-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.h-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.h-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.t-security-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F1F5F9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.sec-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--tm-blue);
+  flex-shrink: 0;
+}
+
+/* Răng Cưa Vé (Perforated Edge) */
+.ticket-perforated-edge {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
 }
 
-.ticket-divider .notch {
-  width: 24px;
-  height: 24px;
-  background: var(--bg-deep);
+.perforated-notch {
+  width: 20px;
+  height: 20px;
+  background: var(--tm-slate-bg);
   border-radius: 50%;
-  position: absolute;
 }
 
-.ticket-divider .notch.top {
-  top: -12px;
+.perforated-notch.top {
+  margin-top: -10px;
 }
 
-.ticket-divider .notch.bottom {
-  bottom: -12px;
+.perforated-notch.bottom {
+  margin-bottom: -10px;
 }
 
-.ticket-divider .dash-line {
+.perforated-line {
   flex: 1;
   width: 1px;
-  border-left: 2px dashed rgba(255, 255, 255, 0.2);
+  border-left: 2px dashed #CBD5E1;
+  margin: 6px 0;
 }
 
-.ticket-right {
-  width: 240px;
-  background: #090E1E;
-  padding: 24px;
+/* Cuống Vé Bên Phải (Ticket Stub) */
+.ticket-stub-side {
+  background: #F8FAFC;
+  padding: 20px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
 }
 
-.qr-box {
+.qr-container-box {
   background: #FFFFFF;
-  padding: 8px;
-  border-radius: 12px;
-  text-align: center;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
 }
 
-.qr-canvas-mock {
-  width: 120px;
-  height: 120px;
+.qr-code-canvas {
+  width: 130px;
+  height: 130px;
 }
 
-.qr-svg {
+.qr-svg-graphic {
   width: 100%;
   height: 100%;
 }
 
-.qr-id-text {
+.qr-code-id {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
-  color: #050814;
+  font-size: 0.65rem;
   font-weight: 700;
-  margin-top: 4px;
+  color: #475569;
+}
+
+.ticket-barcode-mock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.barcode-lines {
+  width: 140px;
+  height: 32px;
+  background: repeating-linear-gradient(
+    90deg,
+    #0F172A 0px,
+    #0F172A 2px,
+    transparent 2px,
+    transparent 4px,
+    #0F172A 4px,
+    #0F172A 7px,
+    transparent 7px,
+    transparent 9px
+  );
+}
+
+.barcode-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #475569;
+  letter-spacing: 2px;
+}
+
+.btn-secondary-checkin {
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  width: 100%;
+}
+
+.btn-secondary-checkin:hover {
+  background: #1E293B;
 }
 
 /* ==========================================================================
-   4. VIEW 2: TRUNG TÂM CHỈ HUY (COMMAND CENTER)
+   11. ADMIN VIEW: ENTERPRISE ORGANIZER CONSOLE
    ========================================================================== */
-.control-panel-strip {
+.admin-ctrl-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 20px;
 }
 
-.control-row-main {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
-.ctrl-group {
+.ctrl-header-row {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--tm-border);
 }
 
-.ctrl-label {
+.badge-saas {
+  display: inline-block;
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
-}
-
-.ctrl-label span.gold {
-  color: var(--text-gold);
-}
-
-.ctrl-label span.cyan {
-  color: var(--cyber-cyan);
-}
-
-.preset-select {
-  min-width: 320px;
-}
-
-.ctrl-actions {
-  display: flex;
-  gap: 10px;
-  margin-left: auto;
-}
-
-.demand-sliders-bar {
-  background: rgba(10, 17, 40, 0.6);
-  border: 1px solid var(--border-glass);
-  border-radius: 10px;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.demand-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-gold);
-}
-
-.demand-sliders-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.d-slider-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-}
-
-.d-slider-item .d-name {
-  width: 60px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.d-slider {
-  flex: 1;
-}
-
-.d-slider-item .d-val {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--cyber-cyan);
-  width: 50px;
-  text-align: right;
-}
-
-/* Dàn thẻ chỉ số KPI Quốc Gia */
-.kpi-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.kpi-card {
-  padding: 16px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  transition: transform 0.2s ease;
-}
-
-.kpi-card:hover {
-  transform: translateY(-2px);
-}
-
-.kpi-card.highlight-gold {
-  border-color: rgba(212, 175, 55, 0.4);
-}
-
-.kpi-card.highlight-revenue {
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.kpi-card.highlight-protected {
-  border-color: rgba(212, 175, 55, 0.6);
-  background: rgba(212, 175, 55, 0.08);
-}
-
-.kpi-icon {
-  font-size: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.kpi-title {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  color: #38BDF8;
   letter-spacing: 0.5px;
 }
 
-.kpi-value {
-  font-family: var(--font-mono);
-  font-size: 1.4rem;
+.ctrl-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
   font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
-  margin: 4px 0;
+  color: var(--text-white);
+  letter-spacing: -0.5px;
 }
 
-.kpi-value.gold {
-  color: var(--text-gold);
-}
-
-.kpi-value.cyan {
-  color: var(--cyber-cyan);
-}
-
-.kpi-value.revenue {
-  color: var(--emerald-success);
-}
-
-.kpi-note {
-  font-size: 0.65rem;
-  color: var(--text-dim);
-}
-
-.tag-badge {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.tag-badge.green {
-  background: rgba(16, 185, 129, 0.2);
-  color: var(--emerald-success);
-}
-
-.tag-badge.gold {
-  background: rgba(212, 175, 55, 0.2);
-  color: var(--text-gold);
-}
-
-/* ==========================================================================
-   5. BỘ 7 ALGORITHM TABS
-   ========================================================================== */
-.algo-tabs-container {
-  padding: 0;
-  overflow: hidden;
-}
-
-.algo-tabs-header {
-  display: flex;
-  background: rgba(10, 17, 40, 0.8);
-  border-bottom: 1px solid var(--border-glass);
-  overflow-x: auto;
-}
-
-.tab-btn {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-muted);
-  padding: 14px 18px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-
-.tab-btn:hover {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.tab-btn.active {
-  color: var(--text-gold);
-  border-bottom-color: var(--gold-primary);
-  background: rgba(212, 175, 55, 0.08);
-}
-
-.tab-code {
-  font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-}
-
-.tab-btn.active .tab-code {
-  background: var(--gold-primary);
-  color: #050814;
-}
-
-.tab-badge {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--text-dim);
-}
-
-.algo-tabs-body {
-  padding: 24px;
-}
-
-.tab-pane {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
-
-.tab-pane.active {
-  display: block;
-}
-
-.tab-intro-box {
-  background: rgba(10, 17, 40, 0.6);
-  border-left: 3px solid var(--gold-primary);
-  padding: 12px 16px;
-  border-radius: 0 8px 8px 0;
-  margin-bottom: 20px;
-}
-
-.tab-intro-box h3 {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--text-gold);
-  margin-bottom: 4px;
-}
-
-.tab-intro-box p {
-  font-size: 0.75rem;
+.ctrl-desc-text {
+  font-size: 0.82rem;
   color: var(--text-muted);
 }
 
-/* Bảng dữ liệu mẫu */
-.tab-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid var(--border-glass);
-  border-radius: 8px;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-}
-
-.data-table th {
-  background: #090E1E;
-  padding: 10px 14px;
-  text-align: left;
-  font-weight: 700;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-glass);
-}
-
-.data-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  font-family: var(--font-mono);
-}
-
-.data-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* Tab M3: Binary search trace */
-.trace-cards-grid {
+/* Parameter Inputs Grid */
+.params-inputs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr) 240px;
+  gap: 16px;
+  align-items: start;
 }
 
-.trace-step-card {
-  background: var(--surface-card);
-  border: 1px solid var(--border-glass);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.7rem;
-}
-
-.trace-step-card.feasible {
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.trace-step-card.infeasible {
-  border-color: rgba(248, 113, 113, 0.4);
-}
-
-/* Tab M6: Canvas realtime */
-.chart-canvas-wrapper {
-  background: #070D1E;
-  border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  justify-content: center;
-}
-
-/* ==========================================================================
-   6. CÁC NÚT BẤM & FORM INPUT
-   ========================================================================== */
-.btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-  border: none;
-}
-
-.btn-primary-gold {
-  background: linear-gradient(135deg, #D4AF37 0%, #F59E0B 100%);
-  color: #050814;
-}
-
-.btn-primary-gold:hover {
-  filter: brightness(1.1);
-  box-shadow: var(--glow-gold);
-}
-
-.btn-primary-cyan {
-  background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
-  color: #FFFFFF;
-}
-
-.btn-primary-cyan:hover {
-  filter: brightness(1.1);
-  box-shadow: var(--glow-cyan);
-}
-
-.btn-secondary-gate {
-  background: var(--surface-card);
-  border: 1px solid var(--border-gold);
-  color: var(--text-gold);
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border-glass);
-  color: var(--text-muted);
-}
-
-.btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-}
-
-.custom-select,
-.custom-input-number {
-  background: #090E1E;
-  border: 1px solid var(--border-glass);
-  color: var(--text-main);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-}
-
-.custom-slider {
-  accent-color: var(--gold-primary);
-  cursor: pointer;
-}
-
-/* ==========================================================================
-   7. FOOTER
-   ========================================================================== */
-.app-footer {
-  border-top: 1px solid var(--border-glass);
-  background: rgba(5, 8, 20, 0.9);
-  padding: 16px 24px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-dim);
-}
-
-.footer-science {
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-/* ==========================================================================
-   8. ANIMATIONS & ACCESSIBILITY
-   ========================================================================== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse-dot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-@keyframes pulse-danger {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-/* Tắt animations nếu người dùng bật chế độ giảm chuyển động */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+@media (max-width: 1024px) {
+  .params-inputs-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* =============================================================================
-   MỞ RỘNG: BỘ THÔNG SỐ ĐẦU VÀO ĐỘNG & BẢNG NHẬP SỐ LIỆU
-   ============================================================================= */
-.config-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-glass);
+@media (max-width: 640px) {
+  .params-inputs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.cfg-badge {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--text-gold);
-  letter-spacing: 0.5px;
-}
-
-.cfg-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.inputs-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1.4fr 1fr 1fr 0.8fr 1.2fr;
-  gap: 16px;
-  align-items: flex-end;
-}
-
-.highlight-box {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-.input-with-presets {
+.param-box {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.custom-input-number.lg {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  padding: 8px 12px;
-  background: rgba(10, 15, 30, 0.8);
-  border: 1px solid var(--cyber-blue);
-  border-radius: 8px;
+.param-box.highlight-param {
+  border-color: rgba(2, 108, 223, 0.4);
+}
+
+.param-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-white);
+}
+
+.param-hint {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.input-with-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-number-lg {
+  width: 100%;
+  background: #0B132B;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 6px;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.input-number-lg:focus {
+  border-color: var(--tm-blue);
+}
+
+.input-number-standard {
+  width: 100%;
+  background: #0B132B;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 6px;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 8px 10px;
+  outline: none;
 }
 
 .preset-chips {
   display: flex;
-  flex-wrap: wrap;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
 .btn-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-glass);
+  background: #1A263E;
+  border: 1px solid var(--tm-border);
   color: var(--text-muted);
-  border-radius: 6px;
-  font-size: 0.68rem;
-  padding: 3px 8px;
-  cursor: pointer;
+  font-size: 0.7rem;
   font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-chip:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #FFFFFF;
+  color: var(--text-white);
+  border-color: #64748B;
 }
 
 .btn-chip.active {
-  background: rgba(212, 175, 55, 0.2);
-  border-color: var(--gold-primary);
-  color: var(--text-gold);
+  background: var(--tm-blue);
+  color: var(--text-white);
+  border-color: var(--tm-blue);
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slider-badge-val {
+  font-family: var(--font-mono);
   font-weight: 700;
+  font-size: 0.88rem;
 }
 
-.slider-subtext {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  margin-top: 4px;
+.slider-badge-val.gold { color: #F59E0B; }
+.slider-badge-val.blue { color: #38BDF8; }
+
+.form-range-slider {
+  width: 100%;
+  accent-color: var(--tm-blue);
+  cursor: pointer;
 }
 
-.ctrl-actions-stacked {
+.param-action-buttons {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.param-action-buttons .btn {
   width: 100%;
 }
 
-.d-input-num {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-gold);
-  background: rgba(10, 15, 30, 0.7);
-  border: 1px solid var(--border-glass);
-  border-radius: 6px;
-  padding: 4px 8px;
-  width: 90px;
+/* Demands Control Bar */
+.demands-control-bar {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* =============================================================================
-   MỞ RỘNG: QUY TRÌNH STEP-BY-STEP & SPOTLIGHT CARD 4 CỘT
-   ============================================================================= */
-.pipeline-stepper-container {
-  margin-top: 24px;
+.demands-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #CBD5E1;
+}
+
+.demands-sliders-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .demands-sliders-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.demand-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.d-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.d-input-number {
+  background: #0B132B;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 4px;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  outline: none;
+}
+
+.d-slider {
+  width: 100%;
+  accent-color: var(--tm-blue);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   12. KPI DASHBOARD CARDS (Enterprise KPI Strip)
+   ========================================================================== */
+.kpi-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .kpi-dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi-metric-card {
+  background: var(--tm-card-bg);
+  border: 1px solid var(--tm-border);
+  border-radius: 10px;
+  padding: 16px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-metric-card.highlight-border-blue {
+  border-color: rgba(2, 108, 223, 0.4);
+}
+
+.kpi-metric-card.highlight-border-green {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.kpi-metric-card.highlight-border-amber {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.kpi-icon-badge {
+  width: 34px;
+  height: 34px;
+  background: #141E33;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.kpi-icon-badge.blue { background: rgba(2, 108, 223, 0.15); }
+.kpi-icon-badge.green { background: rgba(16, 185, 129, 0.15); }
+.kpi-icon-badge.amber { background: rgba(245, 158, 11, 0.15); }
+.kpi-icon-badge.cyan { background: rgba(2, 132, 199, 0.15); }
+
+.kpi-data-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.3px;
+}
+
+.kpi-big-val {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-white);
+  line-height: 1.2;
+}
+
+.kpi-footnote {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.badge-complexity {
+  background: #141E33;
+  color: #38BDF8;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+}
+
+/* ==========================================================================
+   13. PIPELINE STEP-BY-STEP (7 Giai Đoạn Giải Thuật)
+   ========================================================================== */
+.pipeline-wrapper-card {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 24px;
 }
 
 .pipeline-header-bar {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
   gap: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-glass);
+  flex-wrap: wrap;
 }
 
-.pipeline-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.badge-timeline {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #38BDF8;
+  letter-spacing: 0.5px;
 }
 
-.pipeline-badge {
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--cyan-primary);
-}
-
-.pipeline-heading {
+.p-heading {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #FFFFFF;
-  margin: 0;
+  color: var(--text-white);
 }
 
-.step-controller-box {
+.step-nav-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(10, 15, 30, 0.7);
-  padding: 6px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border-glass);
+  gap: 8px;
 }
 
-.btn-step {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-glass);
-  color: #FFFFFF;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.82rem;
-  font-weight: 700;
+.btn-step-nav {
+  background: #141E33;
+  border: 1px solid var(--tm-border-strong);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.btn-step:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--cyber-blue);
+.btn-step-nav:hover {
+  background: #1A263E;
+  border-color: #64748B;
 }
 
-.step-indicator-pill {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+.step-indicator-box {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
   padding: 6px 12px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 6px;
-  color: var(--text-gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.step-lbl {
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  margin-right: 4px;
+.step-ind-lbl {
+  font-size: 0.7rem;
+  color: var(--text-dim);
 }
 
-.btn-play {
-  padding: 8px 16px;
-  font-size: 0.82rem;
+.step-ind-val {
+  color: var(--text-white);
+  font-family: var(--font-mono);
   font-weight: 700;
 }
 
-/* Thanh điều hướng 7 bước (Horizontal Step Navigator) */
+.btn-play {
+  font-size: 0.78rem;
+  padding: 6px 14px;
+}
+
+/* Timeline 7 Nodes Track */
 .pipeline-steps-track {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 14px 16px;
   overflow-x: auto;
-  padding: 10px 4px;
 }
 
 .step-node {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 10px 14px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  min-width: 135px;
-  flex: 1;
-}
-
-.step-node:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
-}
-
-.step-node.active {
-  background: rgba(212, 175, 55, 0.16);
-  border-color: var(--gold-primary);
-  box-shadow: var(--glow-gold);
-}
-
-.step-node.completed {
-  border-color: var(--emerald-green);
-  background: rgba(16, 185, 129, 0.08);
-}
-
-.node-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
+  opacity: 0.5;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.step-node.active .node-circle {
-  background: var(--gold-primary);
-  color: #050814;
+.step-node:hover {
+  opacity: 0.8;
 }
 
-.step-node.completed .node-circle {
-  background: var(--emerald-green);
+.step-node.active {
+  opacity: 1;
+}
+
+.node-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1E293B;
+  border: 2px solid #475569;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.step-node.active .node-circle {
+  background: var(--tm-blue);
+  border-color: #38BDF8;
   color: #FFFFFF;
+  box-shadow: 0 0 10px rgba(2, 108, 223, 0.4);
 }
 
 .node-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
 }
 
 .node-step {
   font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--text-dim);
 }
 
 .node-name {
+  font-size: 0.82rem;
   font-weight: 700;
-  font-size: 0.78rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  color: var(--text-white);
 }
 
 .node-tag {
+  font-size: 0.68rem;
+  color: #38BDF8;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--cyan-primary);
 }
 
 .step-connector {
-  width: 14px;
+  flex: 1;
   height: 2px;
-  background: rgba(255, 255, 255, 0.15);
-  flex-shrink: 0;
+  background: #334155;
+  margin: 0 10px;
+  min-width: 14px;
 }
 
-/* Thẻ Tiêu Điểm 4 Cột Khoa Học (Spotlight Card) */
+/* Spotlight Card 4 Cột Khoa Học */
 .spotlight-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 30, 0.95) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .spotlight-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--tm-border);
+  padding-bottom: 10px;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
 }
 
 .sp-title-box {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .sp-code-pill {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  background: var(--tm-blue);
+  color: #FFFFFF;
   font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--gold-primary);
-  color: #050814;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-family: var(--font-mono);
 }
 
 .sp-stage-title {
   font-family: var(--font-heading);
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-white);
 }
 
 .sp-meta-badges {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.badge-time {
+.badge-time, .badge-space, .badge-runtime {
+  background: #1E293B;
+  border: 1px solid var(--tm-border-strong);
+  color: #38BDF8;
+  font-size: 0.72rem;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: rgba(96, 165, 250, 0.15);
-  border: 1px solid rgba(96, 165, 250, 0.3);
-  color: var(--cyber-blue);
+  font-weight: 600;
   padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.badge-space {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: rgba(6, 182, 212, 0.15);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  color: var(--cyan-primary);
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.badge-runtime {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--emerald-green);
-  padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .spotlight-grid-4col {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .spotlight-grid-4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .sp-col {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0B132B;
+  border: 1px solid var(--tm-border);
+  border-radius: 6px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.sp-col.col-input {
-  border-top: 3px solid var(--cyber-blue);
-}
-
-.sp-col.col-algorithm {
-  border-top: 3px solid var(--gold-primary);
-}
-
-.sp-col.col-complexity {
-  border-top: 3px solid var(--cyan-primary);
-}
-
-.sp-col.col-output {
-  border-top: 3px solid var(--emerald-green);
+  gap: 6px;
 }
 
 .sp-col-title {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #CBD5E1;
 }
 
 .sp-col-desc {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: #E2E8F0;
-  flex-grow: 1;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  flex: 1;
 }
 
 .sp-formula-box {
-  font-family: var(--font-mono);
+  background: #141E33;
+  border: 1px solid var(--tm-border-strong);
+  border-radius: 4px;
+  padding: 6px;
   font-size: 0.78rem;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px dashed rgba(212, 175, 55, 0.4);
-  padding: 8px;
-  border-radius: 6px;
-  color: var(--text-gold);
+  color: #FCD34D;
+  text-align: center;
+  font-family: var(--font-mono);
 }
 
 .sp-col-foot {
   font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  border-top: 1px solid var(--tm-border);
   padding-top: 6px;
+  margin-top: 4px;
 }
 
-/* Khung trực quan hóa động (Live Visualizer) */
+/* ==========================================================================
+   14. LIVE DATA VISUALIZER & TABLES
+   ========================================================================== */
 .live-visualizer-container {
-  background: rgba(10, 15, 30, 0.6);
-  border: 1px solid var(--border-glass);
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .vis-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
 }
 
 .vis-badge {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 800;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #FFFFFF;
+  background: #141E33;
+  color: #38BDF8;
+  border: 1px solid rgba(2, 108, 223, 0.4);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
 }
 
 .vis-hint {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
 .stage-vis-pane {
   display: none;
-  animation: fadeInPane 0.3s ease;
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 14px;
 }
 
 .stage-vis-pane.active {
   display: block;
 }
 
-@keyframes fadeInPane {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Tables Chuẩn Enterprise */
+.tab-table-wrapper {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid var(--tm-border);
 }
 
-/* TTL Demo Box */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.data-table th {
+  background: #1E293B;
+  color: #CBD5E1;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--tm-border-strong);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--tm-border);
+  color: var(--text-main);
+}
+
+.data-table tr:hover td {
+  background: #19263E;
+}
+
+/* Specific Panes */
+.chart-canvas-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-legend {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+#canvasSlidingWindow {
+  width: 100%;
+  background: #0B132B;
+  border: 1px solid var(--tm-border);
+  border-radius: 6px;
+}
+
+.trace-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
 .ttl-demo-box {
+  display: flex;
+  justify-content: center;
   padding: 20px;
 }
 
 .ttl-demo-card {
+  background: #0B132B;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+  padding: 16px 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20px;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 12px;
-  padding: 20px;
+  gap: 8px;
+  max-width: 500px;
+  text-align: center;
 }
 
 .ttl-demo-icon {
-  font-size: 2.5rem;
-}
-
-.ttl-demo-text h4 {
-  font-family: var(--font-heading);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-gold);
-  margin-bottom: 6px;
-}
-
-.ttl-demo-text p {
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: #E2E8F0;
+  font-size: 2rem;
 }
 
 .ttl-metric-tag {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
+  background: #141E33;
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-size: 0.72rem;
   font-weight: 700;
-  background: var(--gold-primary);
-  color: #050814;
-  padding: 8px 14px;
-  border-radius: 8px;
-  white-space: nowrap;
-}
-
-/* Bản đồ đối chiếu khoa học */
-.scientific-matrix-card {
-  margin-top: 24px;
-}
-
-.scientific-table th {
-  background: rgba(10, 15, 30, 0.8);
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
 .code-pill {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 2px 8px;
+  background: #1E293B;
+  color: #38BDF8;
+  padding: 2px 6px;
   border-radius: 4px;
-  color: var(--cyan-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
 }
 
-/* Citizen View Custom Ticket Input */
-.qty-input-group {
+/* ==========================================================================
+   15. SCIENTIFIC MATRIX CARD (PLOS ONE 2024 Mapping)
+   ========================================================================== */
+.scientific-matrix-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card-badge.gold {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FCD34D;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   16. FOOTER CHUẨN DOANH NGHIỆP BÁN VÉ
+   ========================================================================== */
+.app-footer {
+  background-color: #070D19;
+  border-top: 1px solid var(--tm-border);
+  padding: 40px 24px 30px;
+  margin-top: auto;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footer-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 800px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-logo {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-white);
+  margin-bottom: 8px;
+}
+
+.footer-desc {
+  line-height: 1.6;
+  max-width: 360px;
+  margin-bottom: 12px;
+}
+
+.footer-copyright {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.f-col-title {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 12px;
+}
+
+.footer-col-links ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-col-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-col-links a:hover {
+  color: var(--tm-blue);
+}
+
+.footer-cert-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cert-pill {
+  background: #141E33;
+  border: 1px solid var(--tm-border);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: #CBD5E1;
+  width: fit-content;
+}
+
+/* ==========================================================================
+   20. PRIORITY SELECTOR BAR & EXPLANATIONS (Yêu Cầu 1)
+   ========================================================================== */
+.priority-selector-bar {
+  background: linear-gradient(135deg, rgba(2, 108, 223, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid rgba(2, 108, 223, 0.35);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.priority-bar-label {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.custom-input-number.sm {
-  width: 60px;
-  padding: 6px 10px;
+.priority-bar-label .p-icon {
   font-size: 1rem;
-  font-weight: 700;
-  border-radius: 8px;
-  background: rgba(10, 15, 30, 0.8);
-  border: 1px solid var(--border-glass);
-  color: #FFFFFF;
 }
 
-.qty-chips {
+.priority-bar-label .p-title {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #93C5FD;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.priority-select-wrap {
+  width: 100%;
+}
+
+.custom-select-priority {
+  width: 100%;
+  background: #0D1626;
+  border: 1.5px solid #0284C7;
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.custom-select-priority:hover {
+  border-color: #38BDF8;
+  background: #111E33;
+}
+
+.custom-select-priority:focus {
+  border-color: #60A5FA;
+  box-shadow: 0 0 0 3px rgba(2, 108, 223, 0.35);
+}
+
+.custom-select-priority option {
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 10px;
+  font-size: 0.88rem;
+}
+
+.priority-explain-note {
   display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: #94A3B8;
+  line-height: 1.45;
+}
+
+.priority-explain-note .note-bullet {
+  color: #38BDF8;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   21. PARAMETER HELP BOXES & DOT-SEPARATED NUMBERS (Yêu Cầu 4)
+   ========================================================================== */
+.param-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.param-unit-tag {
+  font-size: 0.7rem;
+  color: #64748B;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.param-help-box {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #D97706;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  transition: border-color 0.2s;
+}
+
+.param-help-box:hover {
+  border-color: rgba(217, 119, 6, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.param-help-box .help-title {
+  color: #FCD34D;
+  font-weight: 700;
+  font-size: 0.74rem;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.btn-qty-chip {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-glass);
-  color: #FFFFFF;
+.param-help-box .help-desc {
+  color: #CBD5E1;
+}
+
+.demands-help-note {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(2, 132, 199, 0.3);
   border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  padding: 10px 14px;
+  margin-top: 14px;
+  font-size: 0.75rem;
+  color: #94A3B8;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.demands-help-note .note-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.demands-help-note strong {
+  color: #38BDF8;
+}
+
+.param-run-note {
+  width: 100%;
+  font-size: 0.73rem;
+  color: #94A3B8;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+.param-run-note strong {
+  color: #10B981;
+}
+
+/* Định dạng số có dấu chấm */
+.formatted-dot-input {
+  font-family: var(--font-mono) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* ==========================================================================
+   22. SPOTLIGHT RUN SINGLE MODULE BUTTON & ACTIONS (Yêu Cầu 2)
+   ========================================================================== */
+.sp-action-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sp-action-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-run-single {
+  background: linear-gradient(135deg, #026CDF 0%, #034896 100%);
+  color: #FFFFFF;
+  border: 1px solid #38BDF8;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 108, 223, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-run-single:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0284C7 0%, #026CDF 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 108, 223, 0.5);
+  border-color: #7DD3FC;
+}
+
+.btn-run-single:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-run-single:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: grayscale(40%);
+}
+
+.btn-run-single .btn-play-icon {
+  font-size: 0.9rem;
+}
+
+.sp-run-hint {
+  font-size: 0.75rem;
+  color: #34D399;
+  font-weight: 500;
+}
+
+.sp-call-badge {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.sp-call-badge code {
+  background: #0A1220;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #60A5FA;
+}
+
+/* ==========================================================================
+   23. KATEX FORMULA RENDERING & FALLBACK DISPLAY (Yêu Cầu 3)
+   ========================================================================== */
+.sp-formula-box {
+  background: #080E1A !important;
+  border: 1px solid rgba(2, 108, 223, 0.25) !important;
+  border-radius: 6px;
+  padding: 12px 14px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: auto;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.sp-formula-box .katex-display {
+  margin: 0 !important;
+  padding: 2px 0;
+  color: #E2E8F0;
+  font-size: 1.05rem;
+}
+
+.sp-formula-box .katex {
+  color: #E2E8F0;
+}
+
+/* Fallback Unicode Typography */
+.math-fallback-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  font-size: 1.02rem;
+  color: #F8FAFC;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.math-symbol {
+  color: #38BDF8;
+  font-weight: bold;
+}
+
+.math-sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+  color: #94A3B8;
+}
+
+.math-sup {
+  font-size: 0.75em;
+  vertical-align: super;
+  color: #FCD34D;
+}
+
+.math-tag {
+  font-size: 0.75rem;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+/* ==========================================================================
+   24. M2 MAX-HEAP BINARY TREE VISUALIZER (Khắc phục vỡ layout cây)
+   ========================================================================== */
+.heap-tree-mock {
+  background: radial-gradient(circle at 50% 15%, #16243E 0%, #0A1224 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 24px 20px;
+  margin-bottom: 24px;
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.heap-tree-box {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.heap-level {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 40px;
+}
+
+.heap-level.sub {
+  gap: 50px;
+}
+
+.heap-level.leaves {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.heap-node {
+  background: #0F1D36;
+  border: 2px solid #0284C7;
+  border-radius: 10px;
+  padding: 12px 18px;
+  text-align: center;
+  min-width: 170px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.heap-node:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: #38BDF8;
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+}
+
+.heap-node.root {
+  background: linear-gradient(135deg, #1E293B 0%, #1A2E4C 100%);
+  border: 2px solid #F59E0B;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+  min-width: 220px;
+}
+
+.heap-node.root .hn-score {
+  color: #FCD34D;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+  font-size: 1.6rem;
+}
+
+.heap-node.root .hn-tag {
+  background: #B45309;
+  color: #FEF3C7;
+  border: 1px solid #F59E0B;
+}
+
+.hn-score {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #60A5FA;
+  margin-bottom: 3px;
+}
+
+.hn-name {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.hn-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(2, 108, 223, 0.3);
+  color: #93C5FD;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.heap-branches {
+  display: flex;
+  justify-content: center;
+  gap: 160px;
+  width: 100%;
+  position: relative;
+  height: 22px;
+}
+
+.branch-line {
+  width: 2px;
+  height: 22px;
+  background: #0284C7;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.7);
+}
+
+.branch-line.left {
+  transform: rotate(26deg);
+}
+
+.branch-line.right {
+  transform: rotate(-26deg);
+}
+
+/* Thẻ giải thích công thức cây Heap */
+.heap-formula-strip {
+  width: 100%;
+  background: rgba(15, 29, 54, 0.8);
+  border: 1px solid rgba(2, 108, 223, 0.25);
+  border-radius: 6px;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.74rem;
+  color: #94A3B8;
+  margin-top: 8px;
+}
+
+.heap-formula-strip strong {
+  color: #38BDF8;
+}
+
+/* ==========================================================================
+   25. ALGO PRINCIPLE CARDS (Khung Trực Quan Hóa Sơ Đồ Thuật Toán)
+   ========================================================================== */
+.algo-principle-card {
+  background: #0D172B;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.apc-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin-bottom: 12px;
+}
+
+.apc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: rgba(2, 108, 223, 0.25);
+  border: 1px solid rgba(2, 108, 223, 0.4);
+  color: #38BDF8;
+}
+
+/* Sơ đồ M1 Divide & Conquer */
+.m1-flow-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+
+.m1-flow-box {
+  background: #14223B;
+  border: 1px solid #1E3A5F;
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-align: center;
+}
+
+.m1-flow-box.initial {
+  border-color: #F59E0B;
+}
+
+.m1-flow-box.sorted {
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.m1-flow-box.sub {
+  font-size: 0.74rem;
+  padding: 6px 12px;
+  color: #93C5FD;
+}
+
+.mfb-label {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.mfb-sub {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.m1-flow-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.m1-arrow {
+  font-size: 0.74rem;
+  color: #38BDF8;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.m1-arrow span {
+  font-size: 0.68rem;
+  color: #94A3B8;
+}
+
+.m1-principle-note {
+  background: rgba(15, 29, 54, 0.7);
+  border-left: 3px solid #38BDF8;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.76rem;
+  color: #CBD5E1;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+/* Thước đo nhị phân M3 Ruler Scale */
+.m3-ruler-box {
+  padding: 14px 10px;
+}
+
+.ruler-bar {
+  position: relative;
+  height: 8px;
+  background: #1E293B;
+  border-radius: 4px;
+  margin: 20px 0 28px;
+}
+
+.ruler-point {
+  position: absolute;
+  top: -6px;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.ruler-point::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0F172A;
+  border: 3px solid #0284C7;
+  margin: 0 auto 4px;
+}
+
+.ruler-point.point-c { left: 5%; }
+.ruler-point.point-mstar { left: 45%; }
+.ruler-point.point-mstar::before {
+  border-color: #F59E0B;
+  background: #F59E0B;
+  box-shadow: 0 0 10px #F59E0B;
+}
+.ruler-point.point-2c { left: 95%; }
+
+.ruler-point span {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  white-space: nowrap;
+}
+
+/* Dải công thức Knapsack M4 */
+.knapsack-formula-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.kfs-col {
+  background: #14223B;
+  border: 1px solid #1E3A5F;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.76rem;
+}
+
+.kfs-col strong {
+  color: #38BDF8;
+}
+
+.kfs-col code {
+  font-family: var(--font-mono);
+  color: #FCD34D;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   26. M4 BOUNDED KNAPSACK ALLOCATION CARDS
+   ========================================================================== */
+.sector-allocation-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.allocation-card {
+  background: #0F1A2E;
+  border: 1px solid rgba(2, 108, 223, 0.35);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.allocation-card:hover {
+  border-color: #38BDF8;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(2, 108, 223, 0.25);
+}
+
+.allocation-card.vvip {
+  border-color: rgba(217, 119, 6, 0.6);
+  background: linear-gradient(135deg, #181926 0%, #15182B 100%);
+}
+
+.allocation-card.platinum {
+  border-color: rgba(2, 108, 223, 0.6);
+}
+
+.allocation-card.gold {
+  border-color: rgba(202, 138, 4, 0.6);
+}
+
+.allocation-card.silver {
+  border-color: rgba(100, 116, 139, 0.6);
+}
+
+.alloc-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.sec-tag {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+}
+
+.sec-rev {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #10B981;
+}
+
+.alloc-stats {
+  font-size: 0.82rem;
+  color: #94A3B8;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.alloc-stats strong.gold {
+  color: #FCD34D;
+  font-family: var(--font-mono);
+}
+
+.alloc-stats span {
+  color: #E2E8F0;
+  font-family: var(--font-mono);
+}
+
+.alloc-progress-bg {
+  width: 100%;
+  height: 8px;
+  background: #1E293B;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.alloc-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #026CDF 0%, #10B981 100%);
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.alloc-note {
+  font-size: 0.76rem;
+  color: #38BDF8;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ==========================================================================
+   27. M6 MIN-HEAP TTL VISUALIZER (Quản lý giữ chỗ & thu hồi quá hạn)
+   ========================================================================== */
+.ttl-status-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.ttl-summary-strip {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ttl-stat-box {
+  flex: 1;
+  min-width: 200px;
+  background: #0F1B30;
+  border: 1px solid rgba(2, 108, 223, 0.3);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ttl-stat-box.highlight {
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.ttl-stat-icon {
+  font-size: 1.8rem;
+}
+
+.ttl-stat-val {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.ttl-stat-lbl {
+  font-size: 0.72rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tab-table-wrapper {
+  background: #0D172B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow-x: auto;
+  padding: 12px;
+}
+
+/* =========================================================================
+   M3: BINARY SEARCH TRACE TABLE STYLES
+   ========================================================================= */
+.m3-kpi-summary-tags .kpi-tag-item {
+  background: rgba(2, 108, 223, 0.15);
+  border: 1px solid rgba(2, 108, 223, 0.3);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  color: #E2E8F0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.m3-kpi-summary-tags .kpi-tag-item strong {
+  color: #38BDF8;
+}
+.m3-kpi-summary-tags .kpi-tag-item.gold strong {
+  color: #F59E0B;
+}
+
+.table-m3-trace tr.highlight-final-mstar {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-left: 4px solid #F59E0B !important;
+}
+
+.m3-risk-meter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.m3-risk-meter-bg {
+  width: 60px;
+  height: 6px;
+  background: #334155;
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+}
+.m3-risk-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* =========================================================================
+   M5: GATE CHECK-IN PAGINATION & TOOLBAR STYLES
+   ========================================================================= */
+.m5-toolbar .btn-chip {
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(30, 41, 59, 0.7);
+  color: #94A3B8;
   cursor: pointer;
   transition: all 0.2s;
 }
-
-.btn-qty-chip.active {
-  background: var(--cyan-primary);
-  border-color: var(--cyan-primary);
-  color: #050814;
+.m5-toolbar .btn-chip:hover {
+  background: rgba(2, 108, 223, 0.3);
+  color: #FFFFFF;
+}
+.m5-toolbar .btn-chip.active {
+  background: #026CDF;
+  color: #FFFFFF;
+  border-color: #38BDF8;
+  font-weight: 700;
 }
 
-/* =============================================================================
-   RESPONSIVE CHO BỘ THIẾT KẾ MỚI
-   ============================================================================= */
-@media (max-width: 1200px) {
-  .inputs-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .spotlight-grid-4col {
-    grid-template-columns: 1fr 1fr;
-  }
+.m5-stats-strip .m5-stat-badge {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #E2E8F0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-@media (max-width: 768px) {
-  .inputs-grid {
-    grid-template-columns: 1fr;
-  }
-  .spotlight-grid-4col {
-    grid-template-columns: 1fr;
-  }
-  .pipeline-header-bar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .step-controller-box {
-    width: 100%;
-    justify-content: space-between;
-  }
+.pagination-btn-group .page-btn {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #CBD5E1;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
+.pagination-btn-group .page-btn:hover:not(:disabled) {
+  background: #026CDF;
+  color: #FFFFFF;
+  border-color: #38BDF8;
+}
+.pagination-btn-group .page-btn.active {
+  background: #026CDF;
+  color: #FFFFFF;
+  border-color: #38BDF8;
+  font-weight: 700;
+}
+.pagination-btn-group .page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
 
